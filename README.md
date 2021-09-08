@@ -19,4 +19,4 @@
  - 접속정보
    os : root / dkdldpadkdl
    mysql root : root / dkdldpadkdl
-   mysql user : dev02 / IBqwe123!@#
+   mysql user : dev02 / IBqwe123!@# / 192.168.56.14
