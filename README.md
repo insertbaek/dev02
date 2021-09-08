@@ -5,15 +5,16 @@
    CentOS 7 64bit
 
  - APP
+   apache
    Python 3.9.6
    node.js 14.17.6
    git 1.8.3.1
    MySQL 8.0.25
 
  - WAS
-   HOME : /home/dev02.01/public
-   GIT : /home/dev02.01
-   httpd : 192.168.56.14
+   HOME : /home/dev02.01/public (apache)
+   GIT HOME : /home/dev02.01
+   www : 192.168.56.14
 
  - 접속정보
    os : root / dkdldpadkdl
