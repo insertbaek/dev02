@@ -1,9 +1,9 @@
-// module init
+// modules init
 const app = require('express')();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 
-// variable init
+// variables init
 const ROOT_DIR = "/home/dev02.01";
 const APP_DIR = ROOT_DIR + "/app";
 const PYTHON_DIR = APP_DIR + "/python";
