@@ -2,7 +2,7 @@
 
 1. 서버구성
  - OS
-   CentOS 7 64bit
+  CentOS 7 64bit
 
  - APP
    apache
