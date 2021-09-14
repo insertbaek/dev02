@@ -1,5 +1,5 @@
 #node
-node_modules/
+app/nodejs/node_modules/
 app/nodejs/package-lock.json
 app/nodejs/package.json
 app/nodejs/yarn.lock
