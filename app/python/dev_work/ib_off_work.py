@@ -6,12 +6,6 @@ from config import ib_function as fn
 import pymysql
 from inspect import currentframe, getframeinfo
 
-# init variables
-strProcessRunTime = "".join([datetime.datetime.now().strftime('%Y%m%d'), '_', datetime.datetime.now().strftime('%H')])
-print(strProcessRunTime)
-strSysLogFileName = "".join([strProcessRunTime, '_', CFilePath.alias, '.log'])
-CibLogSys = fn.CibLog(CFilePath.backup_syslog, str(strSysLogFileName), 'backup')
-
 # init classes
 Cvalidate = fn.CValidate()
 CFilePath = cfg.CFilepathInfo()
@@ -28,6 +22,11 @@ except Exception as e:
 	sys.exit()
 finally:
 	del oConfig, bResult
+
+# init variables
+strProcessRunTime = "".join([datetime.datetime.now().strftime('%Y%m%d'), '_', datetime.datetime.now().strftime('%H')])
+strSysLogFileName = "".join([strProcessRunTime, '_', CFilePath.alias, '.log'])
+CibLogSys = fn.CibLog(CFilePath.backup_syslog, str(strSysLogFileName), 'backup')
 
 # init databases
 CDev02MasterDbconn = pymysql.connect(host=CDev02dbMaster.host, user=CDev02dbMaster.user, password=CDev02dbMaster.password, db=CDev02dbMaster.db, port=CDev02dbMaster.port, charset='utf8')
@@ -54,5 +53,6 @@ finally:
 	del CDev02MasterDbconnCurs, qryTableInfo
 
 
+print(strProcessRunTime)
 print(CFilePath.python)
 print(CDev02dbMaster.host)
