@@ -50,9 +50,9 @@ except Exception as e:
         CibLogSys.error(e)
     sys.exit()
 finally:
-    CibLogSys.info(qryBackupTableInfo + ' [result : ' + str(rstBackupTableInfoList)  + ']')
-    CibLogSys.debug(rstBackupTableInfoList)
-    del CBackupDbConnCurs, qryBackupTableInfo
+    CibLogSys.info(qryTableInfo + ' [result : ' + str(qryTableInfo)  + ']')
+    CibLogSys.debug(qryTableInfo)
+    del CDev02MasterDbconnCurs, qryTableInfo
 
 
 print(CFilePath.python)
