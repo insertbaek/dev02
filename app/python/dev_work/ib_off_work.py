@@ -31,16 +31,18 @@ finally:
 # 로그관련 정의
 strSysLogFileName = "".join([strProcessRunTime, '_', CFilePath.alias, '.log'])
 CibLogSys = fn.CibLog(CFilePath.backup_syslog, str(strSysLogFileName), 'backup')
-CBackupDbConn = pymysql.connect(host=CDev02dbMaster.host, user=CDev02dbMaster.user, password=CDev02dbMaster.password, port=CDev02dbMaster.port, charset='utf8')
+CDev02MasterDbconn = pymysql.connect(host=CDev02dbMaster.host, user=CDev02dbMaster.user, password=CDev02dbMaster.password, port=CDev02dbMaster.port, charset='utf8')
 
 try:
-    with CBackupDbConn.cursor(pymysql.cursors.DictCursor) as CBackupDbConnCurs:
-        qryBackupTableInfo = "SELECT * FROM user_id"
-        CBackupDbConnCurs.execute(qryBackupTableInfo)
-        rstBackupTableInfoList = CBackupDbConnCurs.fetchone()
+    with CDev02MasterDbconn.cursor(pymysql.cursors.DictCursor) as CDev02MasterDbconnCurs:
+        qryTableInfo = "SHOW TABLES;"
+        CDev02MasterDbconnCurs.execute(qryTableInfo)
+        rstTableInfoList = CDev02MasterDbconnCurs.fetchone()
 
-        if rstBackupTableInfoList['nBackupTableCount'] < 1:
-            raise Exception('백업 대상 테이블이 존재하지 않습니다.')
+        print(rstTableInfoList)
+
+        #if rstTableInfoList['nBackupTableCount'] < 1:
+            #raise Exception('백업 대상 테이블이 존재하지 않습니다.')
 except Exception as e:
     if Cvalidate.isEmpty(e) == False:
         CibLogSys.error('심각한 오류가 발생하였습니다.')
