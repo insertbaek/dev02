@@ -16,8 +16,8 @@ CFilePath = cfg.CFilepathInfo()
 CDev02dbMaster = cfg.CDev02dbMaster()
 
 try:
-	for CConfig in [CFilePath, CDev02dbMaster]:
-		bResult = Cvalidate.isDictEmpty(CConfig.__dict__)
+	for oConfig in [CFilePath, CDev02dbMaster]:
+		bResult = Cvalidate.isDictEmpty(oConfig.__dict__)
 
 		if not bResult:
 			raise Exception(Cvalidate.getDictEmpty())
@@ -25,7 +25,7 @@ except Exception as e:
 	print('환경설정 중' + str(e) + '항목 정의가 올바르지 않습니다.')
 	sys.exit()
 finally:
-	del CConfig, bResult
+	del oConfig, bResult
 
 # 참고
 # 로그관련 정의
