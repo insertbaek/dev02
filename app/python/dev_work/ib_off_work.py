@@ -43,18 +43,17 @@ try:
 
 		print(rstTableInfoList)
 
-        #print(rstTableInfoList)
-        #if rstTableInfoList['nBackupTableCount'] < 1:
-            #raise Exception('백업 대상 테이블이 존재하지 않습니다.')
+		if len(rstTableInfoList) < 1:
+			raise Exception('테이블이 존재하지 않습니다.')
 except Exception as e:
-    #if Cvalidate.isEmpty(e) == False:
-        #CibLogSys.error('심각한 오류가 발생하였습니다.')
-    #else:
-        #CibLogSys.error(e)
+	if Cvalidate.isEmpty(e) == False:
+		CibLogSys.error('심각한 오류가 발생하였습니다.')
+	else:
+		CibLogSys.error(e)
 	sys.exit()
 finally:
-    #CibLogSys.info(qryTableInfo + ' [result : ' + str(qryTableInfo)  + ']')
-    #CibLogSys.debug(qryTableInfo)
+	CibLogSys.info(qryTableInfo + ' [result : ' + str(qryTableInfo)  + ']')
+	CibLogSys.debug(qryTableInfo)
 	del CDev02MasterDbconnCurs, qryTableInfo
 
 
