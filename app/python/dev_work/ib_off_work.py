@@ -1,10 +1,10 @@
 #!/usr/local/bin/python3.9
 import subprocess, sys, os, datetime
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-from config import ib_config as cfg
-from config import ib_function as fn
 import pymysql
 from inspect import currentframe, getframeinfo
+from config import ib_config as cfg
+from config import ib_function as fn
 
 # init classes
 Cvalidate = fn.CValidate()
