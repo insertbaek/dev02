@@ -1,5 +1,6 @@
 #!/usr/local/bin/python3.9
 import socket
+
 class CDev02dbMaster:
     def __init__(self):
         self.host = str("192.168.56.14")
