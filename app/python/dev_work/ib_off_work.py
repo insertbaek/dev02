@@ -1,5 +1,5 @@
 #!/usr/local/bin/python3.9
-import subprocess, sys, os, datetime
+import subprocess, sys, os, datetime, socket
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from config import ib_config as cfg
 from config import ib_function as fn
@@ -60,3 +60,5 @@ finally:
 
 print(CFilePath.python)
 print(CDev02dbMaster.host)
+
+print(socket.gethostbyname(socket.getfqdn()))
