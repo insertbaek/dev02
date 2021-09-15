@@ -34,8 +34,9 @@ CDev02MasterDbconn = pymysql.connect(host=CDev02dbMaster.host, user=CDev02dbMast
 
 try:
 	with CDev02MasterDbconn.cursor(pymysql.cursors.DictCursor) as CDev02MasterDbconnCurs:
-		qryTableInfo = "SHOW TABLES;"
-		CDev02MasterDbconnCurs.execute(qryTableInfo)
+		rgBulkValues = [CDev02dbMaster.db]
+		qryTableInfo = "SELECT table_name FROM information_schema.tables WHERE table_schema=%s"
+		CDev02MasterDbconnCurs.execute(qryTableInfo, rgBulkValues)
 		rstTableInfoList = CDev02MasterDbconnCurs.fetchall()
 
 		print(rstTableInfoList)

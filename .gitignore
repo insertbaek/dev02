@@ -1,7 +1,5 @@
 #node
 app/nodejs/node_modules/
-app/nodejs/package-lock.json
-app/nodejs/package.json
 app/nodejs/yarn.lock
 __pycache__
 __pycache__/
