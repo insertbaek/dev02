@@ -9,6 +9,8 @@ from inspect import currentframe, getframeinfo
 # init variables
 strProcessRunTime = "".join([datetime.datetime.now().strftime('%Y%m%d'), '_', datetime.datetime.now().strftime('%H')])
 print(strProcessRunTime)
+strSysLogFileName = "".join([strProcessRunTime, '_', CFilePath.alias, '.log'])
+CibLogSys = fn.CibLog(CFilePath.backup_syslog, str(strSysLogFileName), 'backup')
 
 # init classes
 Cvalidate = fn.CValidate()
@@ -27,10 +29,7 @@ except Exception as e:
 finally:
 	del oConfig, bResult
 
-# 참고
-# 로그관련 정의
-strSysLogFileName = "".join([strProcessRunTime, '_', CFilePath.alias, '.log'])
-CibLogSys = fn.CibLog(CFilePath.backup_syslog, str(strSysLogFileName), 'backup')
+# init databases
 CDev02MasterDbconn = pymysql.connect(host=CDev02dbMaster.host, user=CDev02dbMaster.user, password=CDev02dbMaster.password, db=CDev02dbMaster.db, port=CDev02dbMaster.port, charset='utf8')
 
 try:
