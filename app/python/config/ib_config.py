@@ -10,8 +10,10 @@ class CDev02dbMaster:
 
 class CFilepathInfo:
     def __init__(self):
-        self.root = "/".join(['home', 'dev02.01'])
-        self.app = str(self.root) + "/".join(['app'])
-        self.python = str(self.app) + "/".join(['python'])
-        self.nodejs = str(self.app) + "/".join(['nodejs'])
-        self.database = str(self.app) + "/".join(['db'])
+        self.alias = "@dev02.01"
+        self.root = str('/') + "/".join(['home', 'dev02.01'])
+        self.app = str('/') + "/".join(['home', 'dev02.01', 'app'])
+        self.python = str('/') + "/".join(['home', 'dev02.01', 'app', 'python'])
+        self.nodejs = str('/') + "/".join(['home', 'dev02.01', 'app', 'nodejs'])
+        self.database = str('/') + "/".join(['home', 'dev02.01', 'app', 'db'])
+        self.backup_syslog = str('/') + "/".join(['home', 'dev02.01', 'app', 'python', 'syslog'])
