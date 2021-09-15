@@ -24,9 +24,10 @@ finally:
 	del oConfig, bResult
 
 # init variables
+strLogAlias = "mysqldump"
 strProcessRunTime = "".join([datetime.datetime.now().strftime('%Y%m%d'), '_', datetime.datetime.now().strftime('%H')])
-strSysLogFileName = "".join([strProcessRunTime, '_', CFilePath.alias, '.log'])
-CibLogSys = fn.CibLog(CFilePath.backup_syslog, str(strSysLogFileName), 'backup')
+strSysLogFileName = "".join([strProcessRunTime, '_', CFilePath.alias, '_', strLogAlias, '.log'])
+CibLogSys = fn.CibLog(CFilePath.backup_syslog, str(strSysLogFileName), strLogAlias)
 
 # init databases
 CDev02MasterDbconn = pymysql.connect(host=CDev02dbMaster.host, user=CDev02dbMaster.user, password=CDev02dbMaster.password, db=CDev02dbMaster.db, port=CDev02dbMaster.port, charset='utf8')
