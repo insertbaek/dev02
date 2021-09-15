@@ -33,8 +33,6 @@ strSysLogFileName = "".join([strProcessRunTime, '_', CFilePath.alias, '.log'])
 CibLogSys = fn.CibLog(CFilePath.backup_syslog, str(strSysLogFileName), 'backup')
 CDev02MasterDbconn = pymysql.connect(host=CDev02dbMaster.host, user=CDev02dbMaster.user, password=CDev02dbMaster.password, db=CDev02dbMaster.db, port=CDev02dbMaster.port, charset='utf8')
 
-print(CDev02MasterDbconn)
-
 try:
 	with CDev02MasterDbconn.cursor(pymysql.cursors.DictCursor) as CDev02MasterDbconnCurs:
 		qryTableInfo = "SHOW TABLES;"
