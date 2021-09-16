@@ -2,13 +2,39 @@
 const app = require('express')();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
+const os = require('os');  
+
+function getServerIp() {
+    var ifaces = os.networkInterfaces();
+    var result = '';
+
+    for (var dev in ifaces) {
+        var alias = 0;
+        ifaces[dev].forEach(function(details) {
+            if (details.family == 'IPv4' && details.internal === false) {
+                result = details.address;
+                ++alias;
+            }
+        });
+    }
+
+    return result;
+}
 
 // variables init
-const ROOT_DIR = "/home/dev02.01";
-const APP_DIR = ROOT_DIR + "/app";
-const PYTHON_DIR = APP_DIR + "/python";
-const NODEJS_DIR = APP_DIR + "/nodejs";
-const PUBLIC_DIR = ROOT_DIR + "/public";
+if (getServerIp() == '192.168.56.14') {
+    var ROOT_DIR = "/home/dev02.01";
+    var APP_DIR = ROOT_DIR + "/app";
+    var PYTHON_DIR = APP_DIR + "/python";
+    var NODEJS_DIR = APP_DIR + "/nodejs";
+    var PUBLIC_DIR = ROOT_DIR + "/public";    
+} else {
+    var ROOT_DIR = "/DEV02";
+    var APP_DIR = ROOT_DIR + "/app";
+    var PYTHON_DIR = APP_DIR + "/python";
+    var NODEJS_DIR = APP_DIR + "/nodejs";
+    var PUBLIC_DIR = ROOT_DIR + "/public";    
+}
 
 /* nodejs -> python */
 const spawn = require('child_process').spawn;
@@ -37,41 +63,3 @@ io.on('connection', (socket)=>{
         console.log('user disconnected');
     });
 });
-
-var os = require('os');
-
-  
-
-function getServerIp() {
-
-    var ifaces = os.networkInterfaces();
-
-    var result = '';
-
-    for (var dev in ifaces) {
-
-        var alias = 0;
-
-        ifaces[dev].forEach(function(details) {
-
-            if (details.family == 'IPv4' && details.internal === false) {
-
-                result = details.address;
-
-                ++alias;
-
-            }
-
-        });
-
-    }
-
-  
-
-    return result;
-
-}
-
-  
-
-console.log(getServerIp());
