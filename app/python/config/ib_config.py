@@ -13,17 +13,14 @@ class CDev02dbMaster:
 class CFilepathInfo:
     def __init__(self):
         self.alias = "dev02.01"
+        
         if socket.gethostbyname(socket.getfqdn()) == '192.168.56.1':
             self.root = "/DEV02"
-            self.app = self.root + "/app"
-            self.python = self.app + "/python"
-            self.nodejs = self.app + "/nodejs"
-            self.database = self.app + "/db"
-            self.python_syslog = self.python + "/syslog"
         else:
-            self.root = "/".join(['', 'home', 'dev02.01'])
-            self.app = "/".join(['', 'home', 'dev02.01', 'app'])
-            self.python = "/".join(['', 'home', 'dev02.01', 'app', 'python'])
-            self.nodejs = "/".join(['', 'home', 'dev02.01', 'app', 'nodejs'])
-            self.database = "/".join(['', 'home', 'dev02.01', 'app', 'db'])
-            self.python_syslog = "/".join(['', 'home', 'dev02.01', 'app', 'python', 'syslog'])
+            self.root = "/home/dev02.01"
+
+        self.app = self.root + "/app"
+        self.python = self.app + "/python"
+        self.nodejs = self.app + "/nodejs"
+        self.database = self.app + "/db"
+        self.python_syslog = self.python + "/syslog"

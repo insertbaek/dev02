@@ -39,7 +39,8 @@ try:
 		CDev02MasterDbconnCurs.execute(qryTableInfo, rgBulkValues)
 		rstTableInfoList = CDev02MasterDbconnCurs.fetchall()
 
-		print(rstTableInfoList)
+		for rgTableInfo in rstTableInfoList:
+			print(rgTableInfo['TABLE_NAME'])
 
 		if len(rstTableInfoList) < 1:
 			raise Exception('테이블이 존재하지 않습니다.')
@@ -52,7 +53,7 @@ except Exception as e:
 finally:
 	CibLogSys.info(qryTableInfo + ' [result : ' + str(qryTableInfo)  + ']')
 	CibLogSys.debug(qryTableInfo)
-	del CDev02MasterDbconnCurs, qryTableInfo
+	del CDev02MasterDbconnCurs, rstTableInfoList, qryTableInfo
 
 
 print(strProcessRunTime)
