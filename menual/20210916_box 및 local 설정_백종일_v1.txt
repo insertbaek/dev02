@@ -53,7 +53,8 @@
 # vscode 연결 확인
 1. root@ib_dev02> iptables -F
 2. vscode 하단에 터미널 진입
-3. PS D:\DEV02> python .\app\python\dev_work\ib_off_work.py
+3. PS D:\DEV02> pip install pymysql
+4. PS D:\DEV02> python .\app\python\dev_work\ib_off_work.py
 ############################################## 로컬 ##############################################
 
 ############################################ 모듈 설치 ############################################
