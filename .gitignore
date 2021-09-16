@@ -1,5 +1,5 @@
 #node
-app/nodejs/node_modules/
+#app/nodejs/node_modules/
 app/nodejs/yarn.lock
 __pycache__
 __pycache__/
