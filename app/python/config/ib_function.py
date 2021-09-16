@@ -1,6 +1,6 @@
 #!/usr/local/bin/python3.9
 import logging, sys, subprocess
-from logging import DEBUG, INFO, ERROR
+from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class CValidate:
     def __init__(self):
