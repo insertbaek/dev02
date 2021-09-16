@@ -1,0 +1,58 @@
+############################################## 박스 ##############################################
+# box 접속
+1. vms 실행
+2. root@ib_dev02> root
+3. root@ib_dev02> dkdldpadkdl
+
+# dev home
+1. root@ib_dev02> cd /home/dev02.01/
+
+# git
+1. root@ib_dev02> cd /home/dev02.01/
+2. root@ib_dev02> git checkout master
+3. root@ib_dev02> git pull
+4. root@ib_dev02> git config --global user.name "user name"
+5. root@ib_dev02> git config --global user.email "user email"
+6. root@ib_dev02> git add *
+7. root@ib_dev02> git commit -am "YYYY-MM-DD 업무내용" <- (commit 시 해당 양식으로 작성)
+8. root@ib_dev02> git push -u origin master
+
+# mysql root
+1. root@ib_dev02> mysql -uroot -p <- (접속)
+                  dkdldpadkdl <- (패스워드)
+2. mysql> exit <- (접속 후 종료)
+
+# mysql user
+1. root@ib_dev02> mysql -udev02 -p -h192.168.56.14 <- (접속)
+                  IBqwe123!@# <- (패스워드)
+2. mysql> exit <- (접속 후 종료)
+
+# python
+1. root@ib_dev02> cd /home/dev02.01/app/python
+2. root@ib_dev02> pip3.9 install module <- 모듈 설치 (모듈 설치에 대한 메뉴얼 작성)
+3. root@ib_dev02> /usr/local/bin/python3.9 work_path/work_file.py <- 파일 실행
+                  python work_path/work_file.py <- 파일 실행
+4. root@ib_dev02> cd /home/dev02.01/app/python/config <- 환경설정 공통 파일
+5. root@ib_dev02> cd /home/dev02.01/app/python/syslog <- 파이썬 로그 파일
+6. root@ib_dev02> python /home/dev02.01/app/python/dev_work/ib_off_work.py
+
+# nodejs
+1. root@ib_dev02> cd /home/dev02.01/app/nodejs
+2. root@ib_dev02> npm install module <- 모듈 설치 (모듈 설치에 대한 메뉴얼 작성)
+3. root@ib_dev02> npm start <- 3000포트 nodejs 서버 실행
+############################################## 박스 ##############################################
+
+############################################## 로컬 ##############################################
+# local workspace 생성
+1. D:\DEV02
+2. D:\DEV02 탐색기에서 오른쪽 마우스 버튼 git bash here 실행
+3. git bash 새창> git init 이후 config & clone
+4. git bash 새창> git config --global user.name "user name"
+5. git bash 새창> git config --global user.email "user email"
+############################################## 로컬 ##############################################
+
+############################################ 모듈 설치 ############################################
+1. box에서 모듈 설치 시 해당 내용처럼 넘버링을 하여 명령어와 설명을 메뉴얼화
+2. menual 폴더에 "YYYYMMDD_메뉴얼 제목_작성자_버전.txt" 으로 저장 후 push
+   예) 20210916_box 및 local 설정_백종일_v1.txt (버전은 같은날 기준 +1씩 올려주시기 바랍니다.)
+############################################ 모듈 설치 ############################################
