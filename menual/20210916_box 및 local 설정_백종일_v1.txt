@@ -49,6 +49,11 @@
 3. git bash 새창> git init 이후 config & clone
 4. git bash 새창> git config --global user.name "user name"
 5. git bash 새창> git config --global user.email "user email"
+
+# vscode 연결 확인
+1. root@ib_dev02> iptables -F
+2. vscode 하단에 터미널 진입
+3. PS D:\DEV02> python .\app\python\dev_work\ib_off_work.py
 ############################################## 로컬 ##############################################
 
 ############################################ 모듈 설치 ############################################
