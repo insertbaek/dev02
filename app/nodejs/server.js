@@ -24,17 +24,13 @@ function getServerIp() {
 // variables init
 if (getServerIp() == '192.168.56.14') {
     var ROOT_DIR = "/home/dev02.01";
-    var APP_DIR = ROOT_DIR + "/app";
-    var PYTHON_DIR = APP_DIR + "/python";
-    var NODEJS_DIR = APP_DIR + "/nodejs";
-    var PUBLIC_DIR = ROOT_DIR + "/public";    
 } else {
     var ROOT_DIR = "/DEV02";
-    var APP_DIR = ROOT_DIR + "/app";
-    var PYTHON_DIR = APP_DIR + "/python";
-    var NODEJS_DIR = APP_DIR + "/nodejs";
-    var PUBLIC_DIR = ROOT_DIR + "/public";    
 }
+var APP_DIR = ROOT_DIR + "/app";
+var PYTHON_DIR = APP_DIR + "/python";
+var NODEJS_DIR = APP_DIR + "/nodejs";
+var PUBLIC_DIR = ROOT_DIR + "/public";    
 
 /* nodejs -> python */
 const spawn = require('child_process').spawn;
