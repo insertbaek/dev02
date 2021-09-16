@@ -41,7 +41,10 @@ try:
 
 		strDumpTableInfo = " ".join([rgTableInfo['TABLE_NAME'] for rgTableInfo in rstTableInfoList])
 
-		print(" ".join(['mysqldump', '-u' + CDev02dbMaster.user, '-p' + CDev02dbMaster.password, '-h' + CDev02dbMaster.host, '--single-transaction', '--default-character-set=utf8', '--skip-lock-tables', '-t', CDev02dbMaster.db, strDumpTableInfo, '>', CFilePath.database + '/' + strProcessRunTime + '_' + CDev02dbMaster.db + '.sql']))
+		if not os.path.exists(CFilePath.database):
+			os.makedirs(CFilePath.database)
+			
+		subprocess.call(" ".join(['mysqldump', '-u' + CDev02dbMaster.user, '-p' + CDev02dbMaster.password, '-h' + CDev02dbMaster.host, '--single-transaction', '--default-character-set=utf8', '--skip-lock-tables', '-t', CDev02dbMaster.db, strDumpTableInfo, '>', CFilePath.database + '/' + strProcessRunTime + '_' + CDev02dbMaster.db + '.sql']), shell=True)
 
 		if len(rstTableInfoList) < 1:
 			raise Exception('테이블이 존재하지 않습니다.')
