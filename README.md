@@ -10,24 +10,17 @@
    node.js 14.17.6<br>
    MySQL 8.0.25
 
- - WAS<br>
+ - WAS BOX<br>
    HOME : /home/dev02.01/public<br>
    GIT HOME : /home/dev02.01<br>
-   www : 192.168.56.14
+   BOX WWW : 192.168.56.14
+
+ - WAS LOCAL<br>
+   HOME : /DEV02/public<br>
+   GIT HOME : /DEV02<br>
+   LOCAL WWW : localhost:3000
 
  - 접속정보<br>
    os : root / dkdldpadkdl<br>
    mysql root : root / dkdldpadkdl<br>
    mysql user : dev02 / IBqwe123!@# / 192.168.56.14
-
-2. 개발환경
- - ssh-keygen (box)<br>
-   root@ib-dev02> ssh-keygen (실행 후 입력 없이 모두 엔터)<br>
-   root@ib-dev02> cat ~/.ssh/id_rsa.pub (현재 초기설정에 의한 파일 존재하므로 덮어쓰기 선택, 결과 복사 후 메신저로 전달)
-
- - ssh-keygen (desktop)<br>
-   git-bash.exe 실행 (윈도우 검색 선택 후 "git-bash" 검색)<br>
-   cd .ssh<br>
-   ssh-keygen -t rsa -b 4096<br>
-   cat id_rsa.pub<br>
-   내용 복사 후 메신저
