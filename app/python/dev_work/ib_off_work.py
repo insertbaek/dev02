@@ -45,9 +45,9 @@ try:
 		if not os.path.exists(CFilePath.database):
 			os.makedirs(CFilePath.database)
 
-		strUserAlias = subprocess.check_output(" ".join(['git', 'config', '--list', '|', 'grep', '-i', 'name']), shell=True, universal_newlines=True).strip().split('\n')
-		print(strUserAlias)
-		subprocess.call(" ".join(['mysqldump', '-u' + CDev02dbMaster.user, '-p' + CDev02dbMaster.password, '-h' + CDev02dbMaster.host, '--single-transaction', '--default-character-set=utf8', '--skip-lock-tables', '-t', CDev02dbMaster.db, strDumpTableInfo, '>', CFilePath.database + '/' + strCurrentDateTime + '_' + CDev02dbMaster.db + '.sql']), shell=True)
+		strUserAlias = subprocess.check_output(" ".join(['git', 'config', '--list', '|', 'grep', '-i', 'name']), shell=True, universal_newlines=True).strip().split('\n')[0].split('=')
+
+		subprocess.call(" ".join(['mysqldump', '-u' + CDev02dbMaster.user, '-p' + CDev02dbMaster.password, '-h' + CDev02dbMaster.host, '--single-transaction', '--default-character-set=utf8', '--skip-lock-tables', '-t', CDev02dbMaster.db, strDumpTableInfo, '>', CFilePath.database + '/' + strCurrentDateTime + '_' + CDev02dbMaster.db + '_' + strUserAlias[1] + '.sql']), shell=True)
 
 		if len(rstTableInfoList) < 1:
 			raise Exception('테이블이 존재하지 않습니다.')
