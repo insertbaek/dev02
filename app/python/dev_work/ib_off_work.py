@@ -53,7 +53,7 @@ try:
 		os.chdir(CFilePath.root)
 		subprocess.call(" ".join(['git', 'pull']), shell=True)
 		subprocess.call(" ".join(['git', 'add', '.']), shell=True)
-		subprocess.call(" ".join(['git', 'commit', '-am', '"' + str(strCurrentDate) + ' ' + str(strUserAlias) + ' MySQL 데이터 백업''"']), shell=True)
+		subprocess.call(" ".join(['git', 'commit', '-am', '"' + str(strCurrentDate) + ' ' + str(strUserAlias[1]) + ' MySQL 데이터 백업''"']), shell=True)
 		subprocess.call(" ".join(['git', 'push', '-u', 'origin', 'master']), shell=True)
 		
 
