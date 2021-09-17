@@ -45,15 +45,15 @@ try:
 		if not os.path.exists(CFilePath.database):
 			os.makedirs(CFilePath.database)
 
-		#strUserAlias = subprocess.check_output(" ".join(['git', 'config', '--list', '|', 'grep', '-i', 'name']), shell=True, universal_newlines=True).strip().split('\n')[0].split('=')
+		strUserAlias = subprocess.check_output(" ".join(['git', 'config', '--list', '|', 'grep', '-i', 'name']), shell=True, universal_newlines=True).strip().split('\n')[0].split('=')
 
-		#subprocess.call(" ".join(['mysqldump', '-u' + CDev02dbMaster.user, '-p' + CDev02dbMaster.password, '-h' + CDev02dbMaster.host, '--single-transaction', '--default-character-set=utf8', '--skip-lock-tables', '--no-data', CDev02dbMaster.db, strDumpTableInfo, '>', CFilePath.database + '/' + strProcessRunTime + '_' + CDev02dbMaster.db + '_schema_' + strUserAlias[1] + '.sql']), shell=True)
-		#subprocess.call(" ".join(['mysqldump', '-u' + CDev02dbMaster.user, '-p' + CDev02dbMaster.password, '-h' + CDev02dbMaster.host, '--single-transaction', '--default-character-set=utf8', '--skip-lock-tables', '-t', CDev02dbMaster.db, strDumpTableInfo, '>', CFilePath.database + '/' + strProcessRunTime+ '_' + CDev02dbMaster.db + '_data_' + strUserAlias[1] + '.sql']), shell=True)
+		subprocess.call(" ".join(['mysqldump', '-u' + CDev02dbMaster.user, '-p' + CDev02dbMaster.password, '-h' + CDev02dbMaster.host, '--single-transaction', '--default-character-set=utf8', '--skip-lock-tables', '--no-data', CDev02dbMaster.db, strDumpTableInfo, '>', CFilePath.database + '/' + strProcessRunTime + '_' + CDev02dbMaster.db + '_schema_' + strUserAlias[1] + '.sql']), shell=True)
+		subprocess.call(" ".join(['mysqldump', '-u' + CDev02dbMaster.user, '-p' + CDev02dbMaster.password, '-h' + CDev02dbMaster.host, '--single-transaction', '--default-character-set=utf8', '--skip-lock-tables', '-t', CDev02dbMaster.db, strDumpTableInfo, '>', CFilePath.database + '/' + strProcessRunTime+ '_' + CDev02dbMaster.db + '_data_' + strUserAlias[1] + '.sql']), shell=True)
 
 		os.chdir(CFilePath.root)
 		subprocess.call(" ".join(['git', 'pull']))
 		subprocess.call(" ".join(['git', 'add', '.']))
-		subprocess.call(" ".join(['git', 'commit', '-m"' + strCurrentDate + ' insertbaek MySQL 데이터 백업"']))
+		subprocess.call(" ".join(['git', 'commit', '-m"' + strCurrentDate + ' ' + strUserAlias + ' MySQL 데이터 백업"']))
 		subprocess.call(" ".join(['git', 'push', '-u', 'origin', 'master']))
 		
 
