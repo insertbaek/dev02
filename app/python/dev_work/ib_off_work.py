@@ -45,6 +45,8 @@ try:
 		if not os.path.exists(CFilePath.database):
 			os.makedirs(CFilePath.database)
 
+		strUserAlias = subprocess.check_output(" ".join(['git', 'config', '--list', '|', 'grep', '-i', 'name']), shell=True, universal_newlines=True).strip().split('\n')
+		print(strUserAlias)
 		subprocess.call(" ".join(['mysqldump', '-u' + CDev02dbMaster.user, '-p' + CDev02dbMaster.password, '-h' + CDev02dbMaster.host, '--single-transaction', '--default-character-set=utf8', '--skip-lock-tables', '-t', CDev02dbMaster.db, strDumpTableInfo, '>', CFilePath.database + '/' + strCurrentDateTime + '_' + CDev02dbMaster.db + '.sql']), shell=True)
 
 		if len(rstTableInfoList) < 1:
@@ -58,7 +60,7 @@ except Exception as e:
 	sys.exit()
 finally:
 	CibLogSys.debug(qryTableInfo + ' [result : ' + str(strDumpTableInfo)  + ']')
-	del CDev02MasterDbconnCurs, qryTableInfo, rstTableInfoList, strDumpTableInfo
+	del CDev02MasterDbconnCurs, rgBulkTableInfo, qryTableInfo, rstTableInfoList, strDumpTableInfo
 
 
 #print(strProcessRunTime)
