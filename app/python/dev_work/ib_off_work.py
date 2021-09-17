@@ -51,10 +51,10 @@ try:
 		subprocess.call(" ".join(['mysqldump', '-u' + CDev02dbMaster.user, '-p' + CDev02dbMaster.password, '-h' + CDev02dbMaster.host, '--single-transaction', '--default-character-set=utf8', '--skip-lock-tables', '-t', CDev02dbMaster.db, strDumpTableInfo, '>', CFilePath.database + '/' + strProcessRunTime+ '_' + CDev02dbMaster.db + '_data_' + strUserAlias[1] + '.sql']), shell=True)
 
 		os.chdir(CFilePath.root)
-		subprocess.call(" ".join(['git', 'pull']))
-		subprocess.call(" ".join(['git', 'add', '.']))
-		subprocess.call(" ".join(['git', 'commit', '-m"' + strCurrentDate + ' ' + strUserAlias + ' MySQL 데이터 백업"']))
-		subprocess.call(" ".join(['git', 'push', '-u', 'origin', 'master']))
+		subprocess.call(" ".join(['git', 'pull']), shell=True)
+		subprocess.call(" ".join(['git', 'add', '.']), shell=True)
+		subprocess.call(" ".join(['git', 'commit', '-m"' + strCurrentDate + ' ' + strUserAlias + ' MySQL 데이터 백업"']), shell=True)
+		subprocess.call(" ".join(['git', 'push', '-u', 'origin', 'master']), shell=True)
 		
 
 		if len(rstTableInfoList) < 1:
