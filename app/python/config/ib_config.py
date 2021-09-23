@@ -10,14 +10,25 @@ class CDev02dbMaster:
         self.port = int(3306)
         self.socket = str("/var/lib/mysql/mysql.sock")
 
+class CDevRepairdbMaster:
+    def __init__(self):
+        self.host = str("192.168.56.14")
+        self.db = str("ib_repair_db")
+        self.user = str("dev_repair")
+        self.password = str("IBqwe123!@#")
+        self.port = int(3306)
+        self.socket = str("/var/lib/mysql/mysql.sock")
+
 class CFilepathInfo:
     def __init__(self):
         self.alias = "dev02.01"
         
         if socket.gethostbyname(socket.getfqdn()) == '192.168.56.1':
             self.root = "/DEV02"
+            self.findfiles = "dir"
         else:
             self.root = "/home/dev02.01"
+            self.findfiles = "ls"
 
         self.app = self.root + "/app"
         self.python = self.app + "/python"
