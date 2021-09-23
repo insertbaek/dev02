@@ -7,16 +7,16 @@ from config import ib_config as cfg
 from config import ib_function as fn
 
 # init classes
-Cvalidate = fn.CValidate()
+CValidate = fn.CValidate()
 CFilePath = cfg.CFilepathInfo()
 CDev02dbMaster = cfg.CDev02dbMaster()
 
 try:
 	for oConfig in [CFilePath, CDev02dbMaster]:
-		bResult = Cvalidate.isDictEmpty(oConfig.__dict__)
+		bResult = CValidate.isDictEmpty(oConfig.__dict__)
 
 		if not bResult:
-			raise Exception(Cvalidate.getDictEmpty())
+			raise Exception(CValidate.getDictEmpty())
 except Exception as e:
 	print('환경설정 중' + str(e) + '항목 정의가 올바르지 않습니다.')
 	sys.exit()
@@ -60,7 +60,7 @@ try:
 		if len(rstTableInfoList) < 1:
 			raise Exception('테이블이 존재하지 않습니다.')
 except Exception as e:
-	if Cvalidate.isEmpty(e) == False:
+	if CValidate.isEmpty(e) == False:
 		CibLogSys.error('심각한 오류가 발생하였습니다.')
 	else:
 		CibLogSys.error(e)

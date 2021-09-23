@@ -16,8 +16,8 @@
    BOX WWW : 192.168.56.14
 
  - WAS LOCAL<br>
-   HOME : /DEV02/public<br>
-   GIT HOME : /DEV02<br>
+   HOME : D:\DEV02\public<br>
+   GIT HOME : D:\DEV02<br>
    LOCAL WWW : localhost:3000
 
  - 접속정보<br>

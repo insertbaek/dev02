@@ -32,6 +32,13 @@ class CValidate:
 
         return bValue
 
+class CArray:
+    def __init__(self):
+        self.result = 0
+
+    def inMatch(self, strData, rgData):
+        return [strMatch for strMatch in rgData if strData in strMatch]
+
 class CibLog:
     def __init__(self, path, name, logname, level=INFO):
         # init construct.
