@@ -46,7 +46,16 @@ try:
     rgTextMatchBackupFiles = CArray.inMatch('schema', rgBackupFiles)
     rgMatchBackupFiles = CArray.inMatch(dtYesterday.strftime('%Y%m%d'), rgTextMatchBackupFiles)
 
-    
+    for strMatchBackupFile in rgMatchBackupFiles:
+        print(" ".join(['mysql', '-u' + CDevRepairdbMaster.user, '-p' + CDevRepairdbMaster.password, '-h' + CDevRepairdbMaster.host, CDevRepairdbMaster.db, '<', CFilePath.database + '/' + strMatchBackupFile]))
+        #subprocess.call(" ".join(['mysql', '-u' + CDevRepairdbMaster.user, '-p' + CDevRepairdbMaster.password, '-h' + CDevRepairdbMaster.host, CDevRepairdbMaster.db, '<', CFilePath.database + '/' + strMatchBackupFile]), shell=True)
+
+    rgTextMatchBackupFiles = CArray.inMatch('data', rgBackupFiles)
+    rgMatchBackupFiles = CArray.inMatch(dtYesterday.strftime('%Y%m%d'), rgTextMatchBackupFiles)
+
+    for strMatchBackupFile in rgMatchBackupFiles:
+        print(" ".join(['mysql', '-u' + CDevRepairdbMaster.user, '-p' + CDevRepairdbMaster.password, '-h' + CDevRepairdbMaster.host, CDevRepairdbMaster.db, '<', CFilePath.database + '/' + strMatchBackupFile]))
+        #subprocess.call(" ".join(['mysql', '-u' + CDevRepairdbMaster.user, '-p' + CDevRepairdbMaster.password, '-h' + CDevRepairdbMaster.host, CDevRepairdbMaster.db, '<', CFilePath.database + '/' + strMatchBackupFile]), shell=True)
 except Exception as e:
 	if CValidate.isEmpty(e) == False:
 		CibLogSys.error('심각한 오류가 발생하였습니다.')
