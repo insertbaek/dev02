@@ -2,7 +2,7 @@
 const app = require('express')();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
-const os = require('os');  
+const os = require('os');
 
 function getServerIp() {
     var ifaces = os.networkInterfaces();
@@ -30,32 +30,36 @@ if (getServerIp() == '192.168.56.14') {
 var APP_DIR = ROOT_DIR + "/app";
 var PYTHON_DIR = APP_DIR + "/python";
 var NODEJS_DIR = APP_DIR + "/nodejs";
-var PUBLIC_DIR = ROOT_DIR + "/public";    
+var PUBLIC_DIR = ROOT_DIR + "/public";
 
 /* nodejs -> python */
 const spawn = require('child_process').spawn;
 const exec = require('child_process').exec;
 const python = spawn('python', [PYTHON_DIR + '/welcome.py']);
 python.stdout.on('data', (data) => {
-	let returnStr = data.toString('utf-8');
-	console.log(returnStr)
+    let returnStr = data.toString('utf-8');
+    console.log(returnStr)
 });
 /* nodejs -> python */
 
 app.get('/', (req, res) => {
-	res.sendFile(PUBLIC_DIR + '/index.html');
+    res.sendFile(PUBLIC_DIR + '/index.html');
+});
+
+app.get('/maze', (req, res) => {
+    res.sendFile(PUBLIC_DIR + '/maze.html');
 });
 
 http.listen(3000, () => {
-	console.log('Connected at 3000');
+    console.log('Connected at 3000');
 });
 
-io.on('connection', (socket)=>{
+io.on('connection', (socket) => {
     socket.on('request_message', (msg) => {
         io.emit('response_message', msg);
     });
 
-    socket.on('disconnect', async () => {
+    socket.on('disconnect', async() => {
         console.log('user disconnected');
     });
 });
