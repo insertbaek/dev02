@@ -6,7 +6,7 @@
  @description
 '''
 
-import sys, os, datetime, pymysql, json, random
+import sys, os, datetime, pymysql, json, random, time
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 from config import ib_config as cfg
@@ -16,6 +16,13 @@ from config import ib_function as fn
 Cvalidate = fn.CValidate()
 CFilePath = cfg.CFilepathInfo()
 CDev02dbMaster = cfg.CDev02dbMaster()
+
+# init variables
+strLogAlias = "MazePlayController"
+dtToday = datetime.datetime.now()
+strProcessRunTime = "".join([dtToday.strftime('%Y%m%d'), '_', dtToday.strftime('%H')])
+strSysLogFileName = "".join([strProcessRunTime, '_', CFilePath.alias, '_', strLogAlias, '.log'])
+CibLogSys = fn.CibLog(CFilePath.python_syslog, str(strSysLogFileName), strLogAlias)
 
 try:
 	for oConfig in [CFilePath, CDev02dbMaster]:
@@ -38,10 +45,7 @@ class SudokuPlayController:
         self.col = [[0 for j in range(0,10)] for i in range(0,10)]
         self.diag = [[0 for j in range(0,10)] for i in range(0,10)]
         self.terminate_flag = False
-    # connect databases
-    def DBconn(self):
-        CDev02MasterDbconn = pymysql.connect(host=CDev02dbMaster.host, user=CDev02dbMaster.user, password=CDev02dbMaster.password, db=CDev02dbMaster.db, port=CDev02dbMaster.port, charset='utf8')
-        return CDev02MasterDbconn
+        self.nCnt = 0
 
     # SELECT
     def getGameInfo (self, nGameSeq):
@@ -50,23 +54,24 @@ class SudokuPlayController:
             if not nGameSeq:
                 raise Exception('필수 데이터가 비어있습니다.')
             
-            with self.DBconn() as CDev02MasterDbconn:
+            with pymysql.connect(host=CDev02dbMaster.host, user=CDev02dbMaster.user, password=CDev02dbMaster.password, db=CDev02dbMaster.db, port=CDev02dbMaster.port, charset='utf8') as CDev02MasterDbconn:
 
-                CDev02MasterCursor = CDev02MasterDbconn.cursor(pymysql.cursors.DictCursor)
-                if (CDev02MasterDbconn.open != True):
-                    raise Exception('서비스 상태를 확인해주세요.')
+                with CDev02MasterDbconn.cursor(pymysql.cursors.DictCursor) as CDev02MasterCursor:
+                    if (CDev02MasterDbconn.open != True):
+                        raise Exception('서비스 상태를 확인해주세요.')
                 
-                qryGameInfo = "SELECT * FROM ib_dev02_01.sudoku_play_log_2021 WHERE seq= %s"
-                print(qryGameInfo)
-                rstGameInfo = CDev02MasterCursor.execute(qryGameInfo, nGameSeq)
-                if rstGameInfo  == -1:
-                    raise Exception('해당 항목에 대한 결과를 찾지 못하였습니다.')
-                rgResult = CDev02MasterCursor.fetchall()
+                    qryGameInfo = "SELECT * FROM ib_dev02_01.sudoku_play_log_2021 WHERE seq= %s"
+                    print(qryGameInfo)
+                    rstGameInfo = CDev02MasterCursor.execute(qryGameInfo, nGameSeq)
+                    if rstGameInfo  == -1:
+                        raise Exception('해당 항목에 대한 결과를 찾지 못하였습니다.')
+                    rgResult = CDev02MasterCursor.fetchall()
 
-                #JSON 형식으로 변환하여 출력
-                strResult = json.dumps(rgResult, ensure_ascii = False)
+                    #JSON 형식으로 변환하여 출력
+                    strResult = json.dumps(rgResult, ensure_ascii = False)
             return strResult
         except Exception as e:
+            CibLogSys.error(e)
             return str(e)
 
     def board_init(self):
@@ -82,13 +87,12 @@ class SudokuPlayController:
                 self.diag[k][seq[idx]] = 1
                 self.origin_board[offset+i][offset+j] = seq[idx]
 
-    def make(self, k):
+    def make(self, nCnt):
         global terminate_flag, board
-
         if self.terminate_flag == True:
             return True
 
-        if k > 80:
+        if self.nCnt > 80:
             for i in range(0,9):
                 for j in range(0,9):
                     self.board[i][j] = self.origin_board[i][j]
@@ -96,11 +100,11 @@ class SudokuPlayController:
             terminate_flag = True
             return True
 
-        i, j = k//9, k%9
-        start_num = random.randint(1,9)
+        
+        i, j = self.nCnt//9, self.nCnt%9
 
         if self.origin_board[i][j] != 0:
-            self.make(k+1)
+            self.make(self.nCnt+1)
 
         for m in range(1,10):
             d = (i//3)*3 + (j//3)
@@ -108,7 +112,7 @@ class SudokuPlayController:
             if self.row[i][m] == 0 and self.col[j][m] == 0 and self.diag[d][m] == 0:
                 self.row[i][m], self.col[j][m], self.diag[d][m] = 1, 1, 1
                 self.origin_board[i][j] = m
-                self.make(k+1)
+                self.make(nCnt+1)
                 self.row[i][m], self.col[j][m], self.diag[d][m] = 0, 0, 0
                 self.origin_board[i][j] = 0
 
@@ -116,5 +120,4 @@ class SudokuPlayController:
         self.board_init()
         self.make(0)
         ready_board = [self.board[i] for i in range(0,9)]
-
         return ready_board
