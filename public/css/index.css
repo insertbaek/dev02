@@ -1,0 +1,8 @@
+.row {margin: 15px 0;}
+.access-id {display:inline-block}
+.card-header {height:50px; line-height: 35px; text-align: center;}
+.card-header>button {float: right;}
+.card-header>.btn-reset {display: inline-block;padding-left:5px;cursor: pointer;}
+.card-body {height: 90vh; overflow-y: auto;}
+.roomListWrapper>li>button {float: right;}
+.myRank {text-align: center;}
