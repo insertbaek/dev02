@@ -38,28 +38,24 @@ $('#btn-make-room').click(() => {
 //유저 접속 정보 전달
 socket.emit("login", user);
 
-//유저 재접속 - 기존 userList에 저장된 정보 받아옴
-socket.on("newUserCheck",function(data){
-  user = data;
-  socket.emit("userUpdate",user);
-})
+
 
 //방 생성 완료
 socket.on('makeRoomSuccess', function (roomData, userData) {
-  user = userData;
-
-  socket.emit("userUpdate",userData);
-  socket.emit("enterRoomPage", userData);
+  this.user = userData;
   location.href = '/room?id=' + roomData.id; //해당 방으로 이동 처리
 });
 
+
 //방 리스트 요청
 socket.emit('roomListLoad');
+
 
 //방 리스트 노출
 socket.on('roomList', function (data) {
   roomListAppend(data); // 방 리스트 
 });
+
 
 //방 리스트 생성 
 function roomListAppend(data) {
@@ -88,16 +84,17 @@ function roomListAppend(data) {
     var roomId = element.getAttribute('data-room');
     var data = {
       'room': roomId,
-      'user': user
+      'user':this.user
     };
     //인원 체크
     socket.emit("checkRoom", data);
   }
 
+  //방 입장 인원체크 후 이동
   socket.on('checkRoomFlag', function (flag, data) {
     if(flag == true){
-      socket.emit('enterRoom',data);
-      location.href='/room?id=' + data.room; 
+      socket.emit("enterRoom", data);
+      location.href='/room?id=' + data; 
     }else{ 
       alert("인원초과로 들어가실 수 없습니다."); 
     } 
