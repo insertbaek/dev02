@@ -4,6 +4,7 @@ const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const os = require('os');
+const routes = require('./src/route/api/v1');
 
 const mazeNs = io.of('/maze'); //mazeNamespace
 const mazeNsAdapter = mazeNs.adapter;
@@ -52,6 +53,9 @@ python.stdout.on('data', (data) => {
 
 app.use('/css', express.static(PUBLIC_DIR + '/css'));
 app.use('/js', express.static(PUBLIC_DIR + '/js'));
+
+//api
+app.use('/v1', routes);
 
 /* main */
 app.get('/', (req, res) => {
@@ -149,7 +153,7 @@ mazeNs.on('connection', (socket) => {
         console.log("userFlag"+userCheckFlag);
         console.log("data"+data);
         console.log("usre.connecting"+user.connecting);
-        
+
         //이미 있는 user인지 체크
         if (userCheckFlag === false) {
             socket.join(user.connecting);
@@ -169,7 +173,7 @@ mazeNs.on('connection', (socket) => {
         socket.emit('resData', user)
     })
 
-    
+
     socket.on('leaveRoom', function(data){
         var room = getRoomElement(data);
 
@@ -184,6 +188,8 @@ mazeNs.on('connection', (socket) => {
 
     socket.on('disconnecting', (reason) => {
         connected = false;
+        // console.log("connected",connected);
+        // console.log("socket.rooms",socket.rooms);
     });
 
 
