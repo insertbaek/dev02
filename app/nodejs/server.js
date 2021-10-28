@@ -51,6 +51,11 @@ python.stdout.on('data', (data) => {
 });
 /* nodejs -> python */
 
+// parse json request body
+app.use(express.json());
+// parse urlencoded request body
+app.use(express.urlencoded({ extended: true }));
+
 app.use('/css', express.static(PUBLIC_DIR + '/css'));
 app.use('/js', express.static(PUBLIC_DIR + '/js'));
 
