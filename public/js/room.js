@@ -17,9 +17,10 @@ socket.on('resData',function(data){
     console.log(data);
     user = data;
     $("#roomName").text(user.connecting);
-    socket.emit("enterRoom", user);
+    //socket.emit("enterRoom", user.connecting);
 });
 
+setInterval(function(){socket.emit('count')},3000)
 
 //포기 버튼
 // $('#btn-exit-room').click(() => {
@@ -40,3 +41,8 @@ socket.on('errorMessage',function(){
 //     console.log('leaveUserSuccess');
 //     alert("상대방이 게임을 포기하였습니다.");
 // });
+
+socket.on('error', function(data){
+    alert(data.content);
+    location.href = '/';
+})

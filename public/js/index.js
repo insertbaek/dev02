@@ -45,7 +45,7 @@ socket.emit("login", user);
 socket.on('makeRoomSuccess', function (roomData, userData) {
   console.log(userData);
   user = userData;
-  socket.emit('beforeEnterRoom',roomData.id);
+  //socket.emit('beforeEnterRoom',roomData.id);
   location.href = '/room?id=' + roomData.id; //해당 방으로 이동 처리
 });
 
@@ -93,7 +93,7 @@ function roomListAppend(data) {
   //방 입장 인원체크 후 이동
   socket.on('checkRoomFlag', function (flag, data) {
     if(flag == true){
-      socket.emit('beforeEnterRoom', data);
+      socket.emit('enterRoom',data);
       location.href='/room?id=' + data; 
     }else{ 
       alert("인원초과로 들어가실 수 없습니다."); 

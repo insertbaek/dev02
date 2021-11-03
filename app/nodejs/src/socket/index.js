@@ -1,4 +1,4 @@
-const { mazeNSSocket } = require('./maze.socket');
+const { mazeNSSocket } = require('./maze.socket2');
 const io = require('socket.io')({
     cors: {
         origin: 'http://localhost:3000',
@@ -12,7 +12,7 @@ const io = require('socket.io')({
 const mazeNs = io.of('/maze'); //mazeNamespace
 
 mazeNs.on('connection', (socket) => {
-    mazeNSSocket(mazeNs, socket)
+    mazeNSSocket(io, mazeNs, socket)
 });
 
 module.exports = { io };
