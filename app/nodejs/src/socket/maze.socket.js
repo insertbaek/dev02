@@ -105,20 +105,18 @@ const mazeNSSocket = (mazeNs, socket) => {
         if (user.roomCheckFlag === false) {
             mazeNs.socketsJoin(user.connecting);
             console.log("joinroom :"+ JSON.stringify(socket.rooms));
-            var clientCount = io.of('/maze').in(data).fetchSockets();
-            var clientCount2 = io.of("/maze").in(data).allSockets();
-            var clientCount3 = io.of("/maze").allSockets();
+            var clientCount = mazeNs.in(data).fetchSockets();
+            var clientCount2 = mazeNs.in(data).allSockets();
+            var clientCount3 = mazeNs.allSockets();
             // console.log("clientCount: "+JSON.stringify(clientCount))
             // console.log("clientCount2: "+JSON.stringify(clientCount2))
             var CC = clientsCount(data)
             let clientsInRoom = 0;
-            if (io.sockets.adapter.rooms.has(room)) clientsInRoom = io.sockets.adapter.rooms.get(room).size
-            console.log('clientRoom : '+clientsInRoom)
             console.log('clientCount : '+JSON.stringify(clientCount))
             console.log('clientCount2 : '+JSON.stringify(clientCount2))
             console.log('clientCount3 : '+JSON.stringify(clientCount3))
             console.log('clientCount4 : '+ JSON.stringify(CC))
-            console.log(io.of('/maze').sockets.get())
+
 
             room.userList.push(user);
         } else {
@@ -250,7 +248,7 @@ const mazeNSSocket = (mazeNs, socket) => {
     }
 
     var clientsCount = async function(roomId) {
-        var userCount = await io.of('/maze').fetchSockets();
+        var userCount = await mazeNs.fetchSockets();
         // if(!userCount.length) {
         //     throw new Error('socket is not found');
         // }
