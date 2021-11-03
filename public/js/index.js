@@ -16,7 +16,8 @@ var user = {
   "nick": "basic",
   "rank": 0,
   "token": "A",
-  "connecting":""
+  "connecting": "",
+  "roomCheckFlag" : false
 };
 
 $('#access-id').text(uuid);
@@ -42,7 +43,9 @@ socket.emit("login", user);
 
 //방 생성 완료
 socket.on('makeRoomSuccess', function (roomData, userData) {
-  this.user = userData;
+  console.log(userData);
+  user = userData;
+  socket.emit('beforeEnterRoom',roomData.id);
   location.href = '/room?id=' + roomData.id; //해당 방으로 이동 처리
 });
 
@@ -75,28 +78,31 @@ function roomListAppend(data) {
     for (var i = 0; i < roomName.length; i++) {
       //방 입장    
       roomName[i].addEventListener('click', function () {
-        roomCheck(this);
+        var roomId = this.getAttribute('data-room');
+        var data = {
+          'room': roomId,
+          'user': user
+        };
+        //인원 체크
+        socket.emit("checkRoom", data);
       });
     }
   }
-
-  function roomCheck(element) {
-    var roomId = element.getAttribute('data-room');
-    var data = {
-      'room': roomId,
-      'user':this.user
-    };
-    //인원 체크
-    socket.emit("checkRoom", data);
-  }
+}
 
   //방 입장 인원체크 후 이동
   socket.on('checkRoomFlag', function (flag, data) {
     if(flag == true){
-      socket.emit("enterRoom", data);
+      socket.emit('beforeEnterRoom', data);
       location.href='/room?id=' + data; 
     }else{ 
       alert("인원초과로 들어가실 수 없습니다."); 
     } 
   });
-}
+
+
+  //방 생성 user == null error
+  socket.on('maekeRoomError',function(){
+    alert("유저 정보가 상이합니다. 다시 실행해주세요.");
+    location.href="/";
+  })

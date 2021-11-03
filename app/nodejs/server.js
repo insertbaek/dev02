@@ -59,7 +59,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/css', express.static(PUBLIC_DIR + '/css'));
 app.use('/js', express.static(PUBLIC_DIR + '/js'));
 
-//api
+/* api */
 app.use('/v1', routes);
 
 /* main */
@@ -67,6 +67,7 @@ app.get('/', (req, res) => {
     res.sendFile(PUBLIC_DIR + '/index.html');
 });
 
+/* maze */
 app.get('/maze', (req, res) => {
     res.sendFile(PUBLIC_DIR + '/maze.html');
 });
@@ -90,13 +91,13 @@ mazeNs.on('connection', (socket) => {
         checkUserList(data.uuid) //접속 check flag 값 받아옴
 
         if (newJoinFlag) { //처음 접속
-            console.log("처음 접속");
+            // console.log("처음 접속");
             userList.push(user);
         } else {
-            console.log("재접속");
+            // console.log("재접속");
         }
 
-        // console.log('userList : ' + JSON.stringify(userList))
+        // console.log('접속 user : ' + JSON.stringify(user))
     });
 
 
@@ -111,35 +112,36 @@ mazeNs.on('connection', (socket) => {
         var newRoomId = Math.random().toString(24);
         var newRoomName = 'test 들어오세요_' + Math.floor(Math.random() * 100);
 
-        user.connecting = newRoomId;
-        setUserData(user.uuid, newRoomId)
-        console.log('userList : ' + JSON.stringify(userList))
+        if (user !== null) {
+            user.roomCheckFlag = false;
 
-        var newRoom = {
-            'id': newRoomId,
-            'name': newRoomName,
-            'userList': [user]
-        };
+            var newRoom = {
+                'id': newRoomId,
+                'name': newRoomName,
+                'userList': [user]
+            };
 
-        roomList.push(newRoom);
-        socket.join(newRoomId);
+            mazeNs.socketsJoin(newRoomId);
+            roomList.push(newRoom);
 
-        socket.emit('makeRoomSuccess', newRoom, user);
+            socket.emit('makeRoomSuccess', newRoom, user);
+        } else {
+            socket.emit('maekeRoomError');
+        }
     });
+
 
     //방 인원체크
     socket.on('checkRoom', function (data) {
-        console.log('data : ' + JSON.stringify(data));
-
         var room = getRoomElement(data.room);
         var flag = true;
-        var userCheckFlag = getRoomUser(data.room, user.uuid);
+        user.roomCheckFlag = getRoomUser(data.room, user.uuid);
 
         if (room.userList.length < 2) {
             flag = true;
         } else {
             //이미 있는 user인지 체크
-            if (userCheckFlag === false) {
+            if (user.roomCheckFlag === false) {
                 flag = false;
             } else {
                 console.log("user reconnection");
@@ -149,60 +151,99 @@ mazeNs.on('connection', (socket) => {
         socket.emit('checkRoomFlag', flag, data.room);
     });
 
-    //방 입장
-    socket.on('enterRoom', function (data) {
-        user.connecting = data;
-        var room = getRoomElement(user.connecting);
-        var userCheckFlag = getRoomUser(user.connecting, user.uuid);
-
-        console.log("userFlag"+userCheckFlag);
-        console.log("data"+data);
-        console.log("usre.connecting"+user.connecting);
-
-        //이미 있는 user인지 체크
-        if (userCheckFlag === false) {
-            socket.join(user.connecting);
-            room.userList.push(user);
-            setUserData(user.uuid, user.connecting)
-        } else {
-            console.log("user exists(insertUser)");
-        }
-        console.log('room' + JSON.stringify(room))
+    socket.on('beforeEnterRoom', function (roomId) {
+        user.connecting = roomId;
+        setUserData(user.uuid, roomId)
     });
 
 
     //room에 있는 user 정보 전송
     socket.on('reqData', function (data) {
-        checkUserList(data)
-        console.log('reqData : ' + JSON.stringify(user))
-        socket.emit('resData', user)
-    })
+        console.log("userList : " + JSON.stringify(userList));
+        console.log("uuid : " + data);
+        getUserElement(data); //유저리스트에서 유저 찾고
+        
+        console.log(" 들어간 유저 정보 : " + JSON.stringify(user));
+        user.roomCheckFlag = getRoomUser(user.connecting, user.uuid)
+
+        if (user == null) {
+            socket.emit('error')
+            socket.emit('errorMessage')
+        } else {
+            socket.emit('resData', user)
+            console.log('reqData : ' + JSON.stringify(user))
+        }
+
+    });
 
 
-    socket.on('leaveRoom', function(data){
-        var room = getRoomElement(data);
+    //방 입장
+    socket.on('enterRoom', function (data) {
+        var room = getRoomElement(user.connecting);
 
-        socket.leave(data);
-        setRoomUserUpdate(room,user)
+        //이미 있는 user인지 체크
+        if (user.roomCheckFlag === false) {
+            mazeNs.socketsJoin(user.connecting);
+            console.log("joinroom :"+ JSON.stringify(socket.rooms));
+            var clientCount = io.of('/maze').in(data).fetchSockets();
+            var clientCount2 = io.of("/maze").in(data).allSockets();
+            var clientCount3 = io.of("/maze").allSockets();
+            // console.log("clientCount: "+JSON.stringify(clientCount))
+            // console.log("clientCount2: "+JSON.stringify(clientCount2))
+            var CC = clientsCount(data)
+            let clientsInRoom = 0;
+            if (io.sockets.adapter.rooms.has(room)) clientsInRoom = io.sockets.adapter.rooms.get(room).size
+            console.log('clientRoom : '+clientsInRoom)
+            console.log('clientCount : '+JSON.stringify(clientCount))
+            console.log('clientCount2 : '+JSON.stringify(clientCount2))
+            console.log('clientCount3 : '+JSON.stringify(clientCount3))
+            console.log('clientCount4 : '+ JSON.stringify(CC))
+            console.log(io.of('/maze').sockets.get())
 
-        console.log(JSON.stringify(room))
+            room.userList.push(user);
+        } else {
+            console.log("user exists(insertUser)유저가 이미 있음.");
+        }
+        // console.log('room' + JSON.stringify(room))
+        // console.log('userList : ' + JSON.stringify(userList));
+    });
 
-        socket.to(data).emit('leaveUserSuccess');
-    })
 
+
+
+    // socket.on('leaveRoom', function(data){
+    //     var room = getRoomElement(data);
+
+    //     socket.leave(data);
+    //     setRoomUserUpdate(room,user)
+    //     user.connecting = "";
+    //     setUserData(user,user.connecting);
+
+
+    //     console.log(JSON.stringify(room))
+
+    //     socket.to(data).emit('leaveUserSuccess');
+    // });
+
+    //user = null로 인한 에러
+    socket.on('error', function () {
+        var room = getRoomElement(user.connecting);
+        deleteRoom(getRoomElement(user.connecting))
+        setRoomUserUpdate(room, user)
+        setUserData(user.uuid, "")
+    });
 
     socket.on('disconnecting', (reason) => {
         connected = false;
-        // console.log("connected",connected);
-        // console.log("socket.rooms",socket.rooms);
     });
 
 
     //연결 종료
     socket.on('disconnect', (reason) => {
-        console.log("user disconnect");
+        // console.log("user disconnect");
         // console.log(user);
 
+        //방에 들어있는 인원이 몇 명인지 찾기 . 연결된 socket 수
         if (connected) {
             clearTimeout(clear);
         }
@@ -230,7 +271,6 @@ mazeNs.on('connection', (socket) => {
                 break;
             }
         }
-        return user;
     }
 
     //방 userList - user 중복 체크
@@ -238,13 +278,12 @@ mazeNs.on('connection', (socket) => {
         var room = getRoomElement(roomId);
         var flag = false;
 
-        roomList.forEach((room) => {
-            room.userList.forEach((users) => {
-                if (users.uuid == uuid) {
-                    flag = true;
-                }
-            })
-        });
+        for (var i = 0; i < room.userList.length; i++) {
+            if (room.userList[i].uuid === uuid) {
+                flag = true;
+                break;
+            }
+        }
         return flag;
     }
 
@@ -260,9 +299,19 @@ mazeNs.on('connection', (socket) => {
 
     //유저 방 퇴장 시 방 유저 정보에서 해당 유저 삭제
     setRoomUserUpdate = (room, user) => {
-        for(var i = 0; i < room.userList.length; i++){
-            if(room.userList[i] === user){
-                room.userList.splice(i,1);
+        for (var i = 0; i < room.userList.length; i++) {
+            if (room.userList[i] === user) {
+                room.userList.splice(i, 1);
+                break;
+            }
+        }
+    }
+
+    // 방 삭제 
+    deleteRoom = (room) => {
+        for (var i = 0; i < roomList; i++) {
+            if (roomList[i] === room) {
+                roomList.splice(i, 1);
                 break;
             }
         }
@@ -279,5 +328,15 @@ mazeNs.on('connection', (socket) => {
             }
         }
     }
+
+    var clientsCount = async function(roomId) {
+        var userCount = await io.of('/maze').fetchSockets();
+        // if(!userCount.length) {
+        //     throw new Error('socket is not found');
+        // }
+        // return Array.from(userCount[0].rooms);
+        return userCount 
+    }
+
 });
 
