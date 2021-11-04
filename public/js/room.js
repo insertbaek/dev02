@@ -17,11 +17,19 @@ socket.on('resData',function(data){
     console.log(data);
     user = data;
     $("#roomName").text(user.connecting);
-    //socket.emit("enterRoom", user.connecting);
+    // var data = {
+    //     'room':{
+    //         'id':user.connecting
+    //     },
+    //     'user':user
+    // }
+    socket.emit("enterRoom", user.connecting);
 });
 
-setInterval(function(){socket.emit('count')},3000)
-
+//setInterval(function(){socket.emit('count')},3000)
+socket.on('count',function(data){
+    alert(data)
+})
 //포기 버튼
 // $('#btn-exit-room').click(() => {
 //     if(confirm("게임을 포기하시겠습니까?")){

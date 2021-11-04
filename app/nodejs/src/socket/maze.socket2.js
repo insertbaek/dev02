@@ -5,6 +5,7 @@ let connected = true;
 const mazeNSSocket = (io, mazeNs, socket) => {
     var user = null;
     //유저 접속 데이터 받음
+    //io.socketsJoin("lobby");
 
     socket.on("login", function (data) {
         user = data;
@@ -35,11 +36,10 @@ const mazeNSSocket = (io, mazeNs, socket) => {
             var newRoom = {
                 'id': newRoomId,
                 'name': newRoomName,
-                'userList': [user]
+                'userList':[]
             };
 
             roomList.push(newRoom);
-            mazeNs.socketsJoin(newRoom.id);
 
             socket.emit('makeRoomSuccess', newRoom);
         } else {
@@ -85,38 +85,30 @@ const mazeNSSocket = (io, mazeNs, socket) => {
         //user.roomCheckFlag = getRoomUser(getUser.connecting, getUser.uuid)
         socket.emit('resData', getUser)
     });
-    setInterval(()=>{
-        socket.emit('ping')
-    },1000)
 
     //방 입장
-    socket.on('enterRoom', function (data) {
-        let room = getRoomElement(data);
-        console.log('enterRoom'+room.id);
-        user.connecting = room.id;
+    socket.on('enterRoom', async (data)=> {
 
-        console.log('enterRoom : '+room.id)
+        let room = getRoomElement(data);
+        user.connecting = room.id;
         let joinRoom = getRoomUser(room.id, user.uuid)
-        console.log('enterRoom : '+joinRoom)
         if(joinRoom)
         {
             console.log("이미 입장한 유저");
         }
         else
         {
+            console.log(room.id)
             mazeNs.socketsJoin(room.id);
             room.userList.push(user)
-
+            mazeNs.in(room.id).fetchSockets().then((sockets)=>{
+                socket.emit('count', sockets.length)
+            })
         }
 
         //console.log(clients)
     });
-    socket.on('count',async ()=>{
 
-        const sockets = await mazeNs.in(user.connecting).fetchSockets()
-        console.log(sockets.length)
-        console.log(user.connecting)
-    })
     // socket.on('leaveRoom', function(data){
     //     var room = getRoomElement(data);
 
