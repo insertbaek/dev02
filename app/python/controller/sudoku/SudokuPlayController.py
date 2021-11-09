@@ -183,7 +183,7 @@ class SudokuPlayController:
                 #print("nCheckNumber : " + str(nCheckNumber), ", nDepthNumber : " + str(nDepthNumber))
                 #print("["+str(nRow)+"]["+str(nCheckNumber)+"]", "["+str(nCol)+"]["+str(nCheckNumber)+"]", "["+str(nDepthNumber)+"]["+str(nCheckNumber)+"]", rgRuleBaseCol[nRow][nCheckNumber], rgRuleBaseRow[nCol][nCheckNumber], rgRuleBaseDiag[nDepthNumber][nCheckNumber])
 
-                if self.rgRuleBaseCol[nRow][nCheckNumber] == 0 and self.rgRuleBaseRow[nCol][nCheckNumber] == 0 and rgRuleBaseDiag[nDepthNumber][nCheckNumber] == 0:
+                if self.rgRuleBaseCol[nRow][nCheckNumber] == 0 and self.rgRuleBaseRow[nCol][nCheckNumber] == 0 and self.rgRuleBaseDiag[nDepthNumber][nCheckNumber] == 0:
                     self.rgRuleBaseRow[nCol][nCheckNumber], self.rgRuleBaseCol[nRow][nCheckNumber], self.rgRuleBaseDiag[nDepthNumber][nCheckNumber] = 1, 1, 1
                     self.rgAreaRuleBoard[nCol][nRow] = nCheckNumber
                     #print(rgAreaRuleBoard)
