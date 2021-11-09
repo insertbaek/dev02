@@ -75,53 +75,53 @@ class SudokuPlayController:
 
         rgDiagSeq = [0,3]
         for nOffset in range(0,4,2): # nOffset : 0 or 2
-                rgVariable = [i for i in range(1,5)] # rgVariable = [1,2,3,4]
-                random.shuffle(rgVariable)
+            rgVariable = [i for i in range(1,5)] # rgVariable = [1,2,3,4]
+            random.shuffle(rgVariable)
 
-                for nIndex in range(0,4): # nIndex = 0 or 1 or 2 or 3
-                    nRowValue = nIndex // 2 # i = 0 or 0 or 1 or 1
-                    nColValue = nIndex % 2 # j = 0 or 1 or 0 or 1
-                    nOffsetValue = nOffset // 2 # a = 0 or 1
-                    nDiagValue = rgDiagSeq[nOffsetValue] # k = 0 or 3
-                    
-                    '''
-                    # loop 1                | # loop 2
-                    rgRuleBaseRow[0][1] = 1 | rgRuleBaseRow[2][1] = 1
-                    rgRuleBaseRow[0][2] = 1 | rgRuleBaseRow[2][2] = 1
-                    rgRuleBaseRow[1][3] = 1 | rgRuleBaseRow[3][3] = 1
-                    rgRuleBaseRow[1][4] = 1 | rgRuleBaseRow[3][4] = 1
-                    '''
-                    self.rgRuleBaseRow[nOffset + nRowValue][rgVariable[nIndex]] = 1
-                    #print(nOffset + nRowValue, rgVariable[nIndex])
+            for nIndex in range(0,4): # nIndex = 0 or 1 or 2 or 3
+                nRowValue = nIndex // 2 # i = 0 or 0 or 1 or 1
+                nColValue = nIndex % 2 # j = 0 or 1 or 0 or 1
+                nOffsetValue = nOffset // 2 # a = 0 or 1
+                nDiagValue = rgDiagSeq[nOffsetValue] # k = 0 or 3
+                
+                '''
+                # loop 1                | # loop 2
+                rgRuleBaseRow[0][1] = 1 | rgRuleBaseRow[2][1] = 1
+                rgRuleBaseRow[0][2] = 1 | rgRuleBaseRow[2][2] = 1
+                rgRuleBaseRow[1][3] = 1 | rgRuleBaseRow[3][3] = 1
+                rgRuleBaseRow[1][4] = 1 | rgRuleBaseRow[3][4] = 1
+                '''
+                self.rgRuleBaseRow[nOffset + nRowValue][rgVariable[nIndex]] = 1
+                #print(nOffset + nRowValue, rgVariable[nIndex])
 
-                    '''
-                    # loop 1                | # loop 2
-                    rgRuleBaseCol[0][1] = 1 | rgRuleBaseCol[2][1] = 1
-                    rgRuleBaseCol[1][2] = 1 | rgRuleBaseCol[3][2] = 1
-                    rgRuleBaseCol[0][3] = 1 | rgRuleBaseCol[2][3] = 1
-                    rgRuleBaseCol[1][4] = 1 | rgRuleBaseCol[3][4] = 1
-                    '''
-                    self.rgRuleBaseCol[nOffset + nColValue][rgVariable[nIndex]] = 1
-                    #print(nOffset + nColValue, rgVariable[nIndex])
+                '''
+                # loop 1                | # loop 2
+                rgRuleBaseCol[0][1] = 1 | rgRuleBaseCol[2][1] = 1
+                rgRuleBaseCol[1][2] = 1 | rgRuleBaseCol[3][2] = 1
+                rgRuleBaseCol[0][3] = 1 | rgRuleBaseCol[2][3] = 1
+                rgRuleBaseCol[1][4] = 1 | rgRuleBaseCol[3][4] = 1
+                '''
+                self.rgRuleBaseCol[nOffset + nColValue][rgVariable[nIndex]] = 1
+                #print(nOffset + nColValue, rgVariable[nIndex])
 
-                    '''
-                    # loop 1                 | loop 2
-                    rgRuleBaseDiag[0][1] = 1 | rgRuleBaseDiag[3][1] = 1
-                    rgRuleBaseDiag[0][2] = 1 | rgRuleBaseDiag[3][2] = 1
-                    rgRuleBaseDiag[0][3] = 1 | rgRuleBaseDiag[3][3] = 1
-                    rgRuleBaseDiag[0][4] = 1 | rgRuleBaseDiag[3][4] = 1
-                    '''
-                    self.rgRuleBaseDiag[nDiagValue][rgVariable[nIndex]] = 1
-                    #print(nDiagValue, rgVariable[nIndex])
+                '''
+                # loop 1                 | loop 2
+                rgRuleBaseDiag[0][1] = 1 | rgRuleBaseDiag[3][1] = 1
+                rgRuleBaseDiag[0][2] = 1 | rgRuleBaseDiag[3][2] = 1
+                rgRuleBaseDiag[0][3] = 1 | rgRuleBaseDiag[3][3] = 1
+                rgRuleBaseDiag[0][4] = 1 | rgRuleBaseDiag[3][4] = 1
+                '''
+                self.rgRuleBaseDiag[nDiagValue][rgVariable[nIndex]] = 1
+                #print(nDiagValue, rgVariable[nIndex])
 
-                    '''
-                    # loop 1                  | # loop 2
-                    rgAreaRuleBoard[0][0] = 1 | rgAreaRuleBoard[2][2] = 1
-                    rgAreaRuleBoard[0][1] = 2 | rgAreaRuleBoard[2][3] = 2
-                    rgAreaRuleBoard[1][0] = 3 | rgAreaRuleBoard[3][2] = 3
-                    rgAreaRuleBoard[1][1] = 4 | rgAreaRuleBoard[3][3] = 4
-                    '''
-                    self.rgAreaRuleBoard[nOffset + nRowValue][nOffset + nColValue] = rgVariable[nIndex]
+                '''
+                # loop 1                  | # loop 2
+                rgAreaRuleBoard[0][0] = 1 | rgAreaRuleBoard[2][2] = 1
+                rgAreaRuleBoard[0][1] = 2 | rgAreaRuleBoard[2][3] = 2
+                rgAreaRuleBoard[1][0] = 3 | rgAreaRuleBoard[3][2] = 3
+                rgAreaRuleBoard[1][1] = 4 | rgAreaRuleBoard[3][3] = 4
+                '''
+                self.rgAreaRuleBoard[nOffset + nRowValue][nOffset + nColValue] = rgVariable[nIndex]
 
     # SELECT
     def getGameInfo(self, nGameSeq):
@@ -194,7 +194,7 @@ class SudokuPlayController:
 
     def fnHintArrowInit(self, bShowMode):
         self.fnMakeSudoku(0)
-        
+
         rgBoardInit = [self.rgStraightRuleBoard[i] for i in range(0,4)]
 
         rgHint = []
