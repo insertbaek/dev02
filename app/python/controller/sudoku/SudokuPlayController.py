@@ -73,34 +73,6 @@ class SudokuPlayController:
         self.rgRuleBaseDiag = [[0 for j in range(0,5)] for i in range(0,5)]
         self.bTerminate = False
 
-    # SELECT
-    def getGameInfo(self, nGameSeq):
-        try:
-            # 필수 항목이 존재하는지 체크
-            if not nGameSeq:
-                raise Exception('필수 데이터가 비어있습니다.')
-            
-            with pymysql.connect(host=CDev02dbMaster.host, user=CDev02dbMaster.user, password=CDev02dbMaster.password, db=CDev02dbMaster.db, port=CDev02dbMaster.port, charset='utf8') as CDev02MasterDbconn:
-
-                with CDev02MasterDbconn.cursor(pymysql.cursors.DictCursor) as CDev02MasterCursor:
-                    if (CDev02MasterDbconn.open != True):
-                        raise Exception('서비스 상태를 확인해주세요.')
-                
-                    qryGameInfo = "SELECT * FROM ib_dev02_01.sudoku_play_log_2021 WHERE seq= %s"
-                    print(qryGameInfo)
-                    rstGameInfo = CDev02MasterCursor.execute(qryGameInfo, nGameSeq)
-                    if rstGameInfo  == -1:
-                        raise Exception('해당 항목에 대한 결과를 찾지 못하였습니다.')
-                    rgResult = CDev02MasterCursor.fetchall()
-
-                    #JSON 형식으로 변환하여 출력
-                    strResult = json.dumps(rgResult, ensure_ascii = False)
-            return strResult
-        except Exception as e:
-            CibLogSys.error(e)
-            return str(e)
-
-    def fnBoardInit(self):
         rgDiagSeq = [0,3]
         for nOffset in range(0,4,2): # nOffset : 0 or 2
                 rgVariable = [i for i in range(1,5)] # rgVariable = [1,2,3,4]
@@ -150,55 +122,79 @@ class SudokuPlayController:
                     rgAreaRuleBoard[1][1] = 4 | rgAreaRuleBoard[3][3] = 4
                     '''
                     self.rgAreaRuleBoard[nOffset + nRowValue][nOffset + nColValue] = rgVariable[nIndex]
-        
-        return True
+
+    # SELECT
+    def getGameInfo(self, nGameSeq):
+        try:
+            # 필수 항목이 존재하는지 체크
+            if not nGameSeq:
+                raise Exception('필수 데이터가 비어있습니다.')
+            
+            with pymysql.connect(host=CDev02dbMaster.host, user=CDev02dbMaster.user, password=CDev02dbMaster.password, db=CDev02dbMaster.db, port=CDev02dbMaster.port, charset='utf8') as CDev02MasterDbconn:
+
+                with CDev02MasterDbconn.cursor(pymysql.cursors.DictCursor) as CDev02MasterCursor:
+                    if (CDev02MasterDbconn.open != True):
+                        raise Exception('서비스 상태를 확인해주세요.')
+                
+                    qryGameInfo = "SELECT * FROM ib_dev02_01.sudoku_play_log_2021 WHERE seq= %s"
+                    print(qryGameInfo)
+                    rstGameInfo = CDev02MasterCursor.execute(qryGameInfo, nGameSeq)
+                    if rstGameInfo  == -1:
+                        raise Exception('해당 항목에 대한 결과를 찾지 못하였습니다.')
+                    rgResult = CDev02MasterCursor.fetchall()
+
+                    #JSON 형식으로 변환하여 출력
+                    strResult = json.dumps(rgResult, ensure_ascii = False)
+            return strResult
+        except Exception as e:
+            CibLogSys.error(e)
+            return str(e)
 
     def fnMakeSudoku(self, nLastPrevious):
-        if self.fnBoardInit() == True:
-            if self.bTerminate == True:
-                return True
+        if self.bTerminate == True:
+            return True
 
-            if nLastPrevious > 15:
-                for i in range(0,4):
-                    for j in range(0,4):
-                        self.rgStraightRuleBoard[i][j] = self.rgAreaRuleBoard[i][j]
+        if nLastPrevious > 15:
+            for i in range(0,4):
+                for j in range(0,4):
+                    self.rgStraightRuleBoard[i][j] = self.rgAreaRuleBoard[i][j]
 
-                self.bTerminate = True
-                return True
+            self.bTerminate = True
+            return True
 
-            # 2차원 배열의 rgRuleBaseCol과 rgRuleBaseRow를 찾기위한 포인트
-            nCol, nRow = nLastPrevious // 4, nLastPrevious % 4
-            nStartNumber = random.randint(1,4)
-            #print("nLastPrevious : " + str(nLastPrevious), ", nCol : " + str(nCol), ", nRow : " + str(nRow), ", nStart : " + str(nStart))
-            #print(rgAreaRuleBoard[nCol][nRow])
-            
-            # rgAreaRuleBoard의 배열값이 0인것을 채워야 한다.
-            if self.rgAreaRuleBoard[nCol][nRow] != 0:
-                #print("OUT 1 : " + str(nLastPrevious))
+        # 2차원 배열의 rgRuleBaseCol과 rgRuleBaseRow를 찾기위한 포인트
+        nCol, nRow = nLastPrevious // 4, nLastPrevious % 4
+        nStartNumber = random.randint(1,4)
+        #print("nLastPrevious : " + str(nLastPrevious), ", nCol : " + str(nCol), ", nRow : " + str(nRow), ", nStart : " + str(nStart))
+        #print(rgAreaRuleBoard[nCol][nRow])
+        
+        # rgAreaRuleBoard의 배열값이 0인것을 채워야 한다.
+        if self.rgAreaRuleBoard[nCol][nRow] != 0:
+            #print("OUT 1 : " + str(nLastPrevious))
+            self.fnMakeSudoku(nLastPrevious + 1)
+
+        for nCheckNumber in range(1,5): # m = 1 or 2 or 3 or 4
+            nCheckNumber = 1 + (nCheckNumber + nStartNumber) % 4 # m = 1 or 2 or 3 or 4
+            nDepthNumber = (nCol // 2) * 2 + (nRow // 2)
+            #print("nCheckNumber : " + str(nCheckNumber), ", nDepthNumber : " + str(nDepthNumber))
+            #print("["+str(nRow)+"]["+str(nCheckNumber)+"]", "["+str(nCol)+"]["+str(nCheckNumber)+"]", "["+str(nDepthNumber)+"]["+str(nCheckNumber)+"]", rgRuleBaseCol[nRow][nCheckNumber], rgRuleBaseRow[nCol][nCheckNumber], rgRuleBaseDiag[nDepthNumber][nCheckNumber])
+
+            if self.rgRuleBaseCol[nRow][nCheckNumber] == 0 and self.rgRuleBaseRow[nCol][nCheckNumber] == 0 and self.rgRuleBaseDiag[nDepthNumber][nCheckNumber] == 0:
+                self.rgRuleBaseRow[nCol][nCheckNumber], self.rgRuleBaseCol[nRow][nCheckNumber], self.rgRuleBaseDiag[nDepthNumber][nCheckNumber] = 1, 1, 1
+                self.rgAreaRuleBoard[nCol][nRow] = nCheckNumber
+                #print(rgAreaRuleBoard)
+                #print("OUT 2 : " + str(nLastPrevious))
                 self.fnMakeSudoku(nLastPrevious + 1)
+                #print("OUT 2 : ?")
+                self.rgRuleBaseRow[nCol][nCheckNumber], self.rgRuleBaseCol[nRow][nCheckNumber], self.rgRuleBaseDiag[nDepthNumber][nCheckNumber] = 0, 0, 0
+                self.rgAreaRuleBoard[nCol][nRow] = 0
 
-            for nCheckNumber in range(1,5): # m = 1 or 2 or 3 or 4
-                nCheckNumber = 1 + (nCheckNumber + nStartNumber) % 4 # m = 1 or 2 or 3 or 4
-                nDepthNumber = (nCol // 2) * 2 + (nRow // 2)
-                #print("nCheckNumber : " + str(nCheckNumber), ", nDepthNumber : " + str(nDepthNumber))
-                #print("["+str(nRow)+"]["+str(nCheckNumber)+"]", "["+str(nCol)+"]["+str(nCheckNumber)+"]", "["+str(nDepthNumber)+"]["+str(nCheckNumber)+"]", rgRuleBaseCol[nRow][nCheckNumber], rgRuleBaseRow[nCol][nCheckNumber], rgRuleBaseDiag[nDepthNumber][nCheckNumber])
+        #print(rgAreaRuleBoard)
+        #print("fnMakeSudoku : nLastPrevious => " + str(nLastPrevious), ", nCol => " + str(nCol), ", nRow => " + str(nRow), ", nStart => " + str(nStart))
 
-                if self.rgRuleBaseCol[nRow][nCheckNumber] == 0 and self.rgRuleBaseRow[nCol][nCheckNumber] == 0 and self.rgRuleBaseDiag[nDepthNumber][nCheckNumber] == 0:
-                    self.rgRuleBaseRow[nCol][nCheckNumber], self.rgRuleBaseCol[nRow][nCheckNumber], self.rgRuleBaseDiag[nDepthNumber][nCheckNumber] = 1, 1, 1
-                    self.rgAreaRuleBoard[nCol][nRow] = nCheckNumber
-                    #print(rgAreaRuleBoard)
-                    #print("OUT 2 : " + str(nLastPrevious))
-                    self.fnMakeSudoku(nLastPrevious + 1)
-                    #print("OUT 2 : ?")
-                    self.rgRuleBaseRow[nCol][nCheckNumber], self.rgRuleBaseCol[nRow][nCheckNumber], self.rgRuleBaseDiag[nDepthNumber][nCheckNumber] = 0, 0, 0
-                    self.rgAreaRuleBoard[nCol][nRow] = 0
-
-            #print(rgAreaRuleBoard)
-            #print("fnMakeSudoku : nLastPrevious => " + str(nLastPrevious), ", nCol => " + str(nCol), ", nRow => " + str(nRow), ", nStart => " + str(nStart))
-
-            self.fnHintArrowInit()
-
-    def fnHintArrowInit(self):
+    def fnHintArrowInit(self, bShowMode):
+        self.fnMakeSudoku(0)
+        
         rgBoardInit = [self.rgStraightRuleBoard[i] for i in range(0,4)]
 
         rgHint = []
@@ -207,9 +203,14 @@ class SudokuPlayController:
                 rgBoard = [rgBoardInit[x][y], rgBoardInit[x][y+1], rgBoardInit[x+1][y], rgBoardInit[x+1][y+1]]
                 rgHint.append(rgBoard.index(max(rgBoard)))
 
-        rgReturn = [[rgBoardInit], [rgHint]]
+        if bShowMode == True:
+            rgReturn = [[rgBoardInit], [rgHint]]
+        else:
+            rgReturn = [[rgBoardInit], [0]]
 
         return rgReturn
 
     def fnPlaySudoku(self):
-        self.fnMakeSudoku(0)
+        rgBoard = self.fnHintArrowInit(True)
+        print("sudoku", rgBoard[0])
+        print("hint", rgBoard[1])
