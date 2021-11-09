@@ -72,7 +72,6 @@ class SudokuPlayController:
         self.rgRuleBaseCol = [[0 for j in range(0,5)] for i in range(0,5)]
         self.rgRuleBaseDiag = [[0 for j in range(0,5)] for i in range(0,5)]
         self.bTerminate = False
-        self.rgDiagSeq = [0,3]
 
     # SELECT
     def getGameInfo(self, nGameSeq):
@@ -102,6 +101,7 @@ class SudokuPlayController:
             return str(e)
 
     def fnBoardInit(self):
+        rgDiagSeq = [0,3]
         for nOffset in range(0,4,2): # nOffset : 0 or 2
                 rgVariable = [i for i in range(1,5)] # rgVariable = [1,2,3,4]
                 random.shuffle(rgVariable)
@@ -110,7 +110,7 @@ class SudokuPlayController:
                     nRowValue = nIndex // 2 # i = 0 or 0 or 1 or 1
                     nColValue = nIndex % 2 # j = 0 or 1 or 0 or 1
                     nOffsetValue = nOffset // 2 # a = 0 or 1
-                    nDiagValue = self.rgDiagSeq[nOffsetValue] # k = 0 or 3
+                    nDiagValue = rgDiagSeq[nOffsetValue] # k = 0 or 3
                     
                     '''
                     # loop 1                | # loop 2
