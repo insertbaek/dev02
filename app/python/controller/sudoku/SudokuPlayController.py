@@ -47,8 +47,35 @@ class SudokuPlayController:
         self.terminate_flag = False
         self.nCnt = 0
 
+        '''
+        # rgAreaRuleBoard   |  # rgStraightRuleBoard
+        [                   |  [
+            [0, 0, 0, 0],   |      [0, 0, 0, 0],
+            [0, 0, 0, 0],   |      [0, 0, 0, 0],
+            [0, 0, 0, 0],   |      [0, 0, 0, 0],
+            [0, 0, 0, 0]    |      [0, 0, 0, 0]
+        ]                   |  ]
+        '''
+        self.rgAreaRuleBoard = [[0 for j in range(0,4)] for i in range(0,4)]
+        self.rgStraightRuleBoard = [[0 for j in range(0,4)] for i in range(0,4)]
+
+        '''
+        # rgRuleBaseRow       |  # rgRuleBaseCol       |  # rgRuleBaseDiag
+        [                     |  [                     |  [
+            [0, 0, 0, 0, 0],  |      [0, 0, 0, 0, 0],  |      [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],  |      [0, 0, 0, 0, 0],  |      [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],  |      [0, 0, 0, 0, 0],  |      [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0]   |      [0, 0, 0, 0, 0]   |      [0, 0, 0, 0, 0],
+        ]                     |  ]                     |  ]
+        '''        
+        self.rgRuleBaseRow = [[0 for j in range(0,5)] for i in range(0,5)]
+        self.rgRuleBaseCol = [[0 for j in range(0,5)] for i in range(0,5)]
+        self.rgRuleBaseDiag = [[0 for j in range(0,5)] for i in range(0,5)]
+        self.bTerminate = False
+        self.rgDiagSeq = [0,3]
+
     # SELECT
-    def getGameInfo (self, nGameSeq):
+    def getGameInfo(self, nGameSeq):
         try:
             # 필수 항목이 존재하는지 체크
             if not nGameSeq:
@@ -74,50 +101,115 @@ class SudokuPlayController:
             CibLogSys.error(e)
             return str(e)
 
-    def board_init(self):
-        seq_diag = [0,4,8]
-        for offset in range(0,9,3):
-            seq = [i for i in range(1,10)]
-            random.shuffle(seq)
-            for idx in range(0,9):
-                i, j = idx//3, idx%3
-                self.row[offset+i][seq[idx]] = 1
-                self.col[offset+j][seq[idx]] = 1
-                k = seq_diag[offset//3]
-                self.diag[k][seq[idx]] = 1
-                self.origin_board[offset+i][offset+j] = seq[idx]
+    def fnBoardInit(self):
+        for nOffset in range(0,4,2): # nOffset : 0 or 2
+                rgVariable = [i for i in range(1,5)] # rgVariable = [1,2,3,4]
+                random.shuffle(rgVariable)
 
-    def make(self, nCnt):
-        global terminate_flag, board
-        if self.terminate_flag == True:
-            return True
+                for nIndex in range(0,4): # nIndex = 0 or 1 or 2 or 3
+                    nRowValue = nIndex // 2 # i = 0 or 0 or 1 or 1
+                    nColValue = nIndex % 2 # j = 0 or 1 or 0 or 1
+                    nOffsetValue = nOffset // 2 # a = 0 or 1
+                    nDiagValue = self.rgDiagSeq[nOffsetValue] # k = 0 or 3
+                    
+                    '''
+                    # loop 1                | # loop 2
+                    rgRuleBaseRow[0][1] = 1 | rgRuleBaseRow[2][1] = 1
+                    rgRuleBaseRow[0][2] = 1 | rgRuleBaseRow[2][2] = 1
+                    rgRuleBaseRow[1][3] = 1 | rgRuleBaseRow[3][3] = 1
+                    rgRuleBaseRow[1][4] = 1 | rgRuleBaseRow[3][4] = 1
+                    '''
+                    self.rgRuleBaseRow[nOffset + nRowValue][rgVariable[nIndex]] = 1
+                    #print(nOffset + nRowValue, rgVariable[nIndex])
 
-        if self.nCnt > 80:
-            for i in range(0,9):
-                for j in range(0,9):
-                    self.board[i][j] = self.origin_board[i][j]
+                    '''
+                    # loop 1                | # loop 2
+                    rgRuleBaseCol[0][1] = 1 | rgRuleBaseCol[2][1] = 1
+                    rgRuleBaseCol[1][2] = 1 | rgRuleBaseCol[3][2] = 1
+                    rgRuleBaseCol[0][3] = 1 | rgRuleBaseCol[2][3] = 1
+                    rgRuleBaseCol[1][4] = 1 | rgRuleBaseCol[3][4] = 1
+                    '''
+                    self.rgRuleBaseCol[nOffset + nColValue][rgVariable[nIndex]] = 1
+                    #print(nOffset + nColValue, rgVariable[nIndex])
 
-            terminate_flag = True
-            return True
+                    '''
+                    # loop 1                 | loop 2
+                    rgRuleBaseDiag[0][1] = 1 | rgRuleBaseDiag[3][1] = 1
+                    rgRuleBaseDiag[0][2] = 1 | rgRuleBaseDiag[3][2] = 1
+                    rgRuleBaseDiag[0][3] = 1 | rgRuleBaseDiag[3][3] = 1
+                    rgRuleBaseDiag[0][4] = 1 | rgRuleBaseDiag[3][4] = 1
+                    '''
+                    self.rgRuleBaseDiag[nDiagValue][rgVariable[nIndex]] = 1
+                    #print(nDiagValue, rgVariable[nIndex])
 
+                    '''
+                    # loop 1                  | # loop 2
+                    rgAreaRuleBoard[0][0] = 1 | rgAreaRuleBoard[2][2] = 1
+                    rgAreaRuleBoard[0][1] = 2 | rgAreaRuleBoard[2][3] = 2
+                    rgAreaRuleBoard[1][0] = 3 | rgAreaRuleBoard[3][2] = 3
+                    rgAreaRuleBoard[1][1] = 4 | rgAreaRuleBoard[3][3] = 4
+                    '''
+                    self.rgAreaRuleBoard[nOffset + nRowValue][nOffset + nColValue] = rgVariable[nIndex]
         
-        i, j = self.nCnt//9, self.nCnt%9
+        return True
 
-        if self.origin_board[i][j] != 0:
-            self.make(self.nCnt+1)
+    def fnMakeSudoku(self, nLastPrevious):
+        if self.fnBoardInit() == True:
+            if self.bTerminate == True:
+                return True
 
-        for m in range(1,10):
-            d = (i//3)*3 + (j//3)
+            if nLastPrevious > 15:
+                for i in range(0,4):
+                    for j in range(0,4):
+                        self.rgStraightRuleBoard[i][j] = self.rgAreaRuleBoard[i][j]
 
-            if self.row[i][m] == 0 and self.col[j][m] == 0 and self.diag[d][m] == 0:
-                self.row[i][m], self.col[j][m], self.diag[d][m] = 1, 1, 1
-                self.origin_board[i][j] = m
-                self.make(nCnt+1)
-                self.row[i][m], self.col[j][m], self.diag[d][m] = 0, 0, 0
-                self.origin_board[i][j] = 0
+                self.bTerminate = True
+                return True
 
-    def make_sudoku(self):
-        self.board_init()
-        self.make(0)
-        ready_board = [self.board[i] for i in range(0,9)]
-        return ready_board
+            # 2차원 배열의 rgRuleBaseCol과 rgRuleBaseRow를 찾기위한 포인트
+            nCol, nRow = nLastPrevious // 4, nLastPrevious % 4
+            nStartNumber = random.randint(1,4)
+            #print("nLastPrevious : " + str(nLastPrevious), ", nCol : " + str(nCol), ", nRow : " + str(nRow), ", nStart : " + str(nStart))
+            #print(rgAreaRuleBoard[nCol][nRow])
+            
+            # rgAreaRuleBoard의 배열값이 0인것을 채워야 한다.
+            if self.rgAreaRuleBoard[nCol][nRow] != 0:
+                #print("OUT 1 : " + str(nLastPrevious))
+                self.fnMakeSudoku(nLastPrevious + 1)
+
+            for nCheckNumber in range(1,5): # m = 1 or 2 or 3 or 4
+                nCheckNumber = 1 + (nCheckNumber + nStartNumber) % 4 # m = 1 or 2 or 3 or 4
+                nDepthNumber = (nCol // 2) * 2 + (nRow // 2)
+                #print("nCheckNumber : " + str(nCheckNumber), ", nDepthNumber : " + str(nDepthNumber))
+                #print("["+str(nRow)+"]["+str(nCheckNumber)+"]", "["+str(nCol)+"]["+str(nCheckNumber)+"]", "["+str(nDepthNumber)+"]["+str(nCheckNumber)+"]", rgRuleBaseCol[nRow][nCheckNumber], rgRuleBaseRow[nCol][nCheckNumber], rgRuleBaseDiag[nDepthNumber][nCheckNumber])
+
+                if self.rgRuleBaseCol[nRow][nCheckNumber] == 0 and self.rgRuleBaseRow[nCol][nCheckNumber] == 0 and rgRuleBaseDiag[nDepthNumber][nCheckNumber] == 0:
+                    self.rgRuleBaseRow[nCol][nCheckNumber], self.rgRuleBaseCol[nRow][nCheckNumber], self.rgRuleBaseDiag[nDepthNumber][nCheckNumber] = 1, 1, 1
+                    self.rgAreaRuleBoard[nCol][nRow] = nCheckNumber
+                    #print(rgAreaRuleBoard)
+                    #print("OUT 2 : " + str(nLastPrevious))
+                    self.fnMakeSudoku(nLastPrevious + 1)
+                    #print("OUT 2 : ?")
+                    self.rgRuleBaseRow[nCol][nCheckNumber], self.rgRuleBaseCol[nRow][nCheckNumber], self.rgRuleBaseDiag[nDepthNumber][nCheckNumber] = 0, 0, 0
+                    self.rgAreaRuleBoard[nCol][nRow] = 0
+
+            #print(rgAreaRuleBoard)
+            #print("fnMakeSudoku : nLastPrevious => " + str(nLastPrevious), ", nCol => " + str(nCol), ", nRow => " + str(nRow), ", nStart => " + str(nStart))
+
+            self.fnHintArrowInit()
+
+    def fnHintArrowInit(self):
+        rgBoardInit = [self.rgStraightRuleBoard[i] for i in range(0,4)]
+
+        rgHint = []
+        for x in range(0,len(rgBoardInit)-1):
+            for y in range(0,len(rgBoardInit)-1):
+                rgBoard = [rgBoardInit[x][y], rgBoardInit[x][y+1], rgBoardInit[x+1][y], rgBoardInit[x+1][y+1]]
+                rgHint.append(rgBoard.index(max(rgBoard)))
+
+        rgReturn = [[rgBoardInit], [rgHint]]
+
+        return rgReturn
+
+    def fnPlaySudoku(self):
+        self.fnMakeSudoku(0)
