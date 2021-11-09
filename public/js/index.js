@@ -17,8 +17,74 @@ var user = {
   "rank": 0,
   "token": "A",
   "connecting": "",
-  "roomCheckFlag" : false
+  "last_connect": "",
+  "state": false,
 };
+
+
+//유저 접속 정보 전달
+socket.emit("login", user);
+
+//대기실 재접속 일 때 유저 정보 받아오기
+socket.on('resUser', function (data) {
+  user = data;
+  console.log(user);
+})
+
+
+
+//방 생성 완료
+socket.on('makeRoomSuccess', function (roomData, userData) {
+  console.log(userData);
+  user = userData;
+  location.href = '/room?id=' + roomData.id; //해당 방으로 이동 처리
+});
+
+
+//방 리스트 요청
+socket.emit('roomListLoad');
+
+
+//방 리스트 노출
+socket.on('roomList', function (data) {
+  roomListAppend(data); // 방 리스트 
+});
+
+
+//삭제된 방 클릭
+socket.on('roomListReload', function(){
+  alert("삭제된 방입니다. 다른 방을 골라주세요.");
+  location.reload();
+});
+
+
+//이미 접속 중인 방 존재
+socket.on('sendRoomName', function(sendRoomName){
+  alert("현재 [" + sendRoomName + "] 방에 접속중입니다.\n 방 나가기 후 다른 방 접속이 가능합니다.");
+});
+
+
+//방 입장 인원체크 후 이동
+socket.on('checkRoomFlag', function (flag, data) {
+  if (flag == true) {
+    location.href = '/room?id=' + data;
+  } else {
+    alert("인원초과로 들어가실 수 없습니다.");
+  }
+});
+
+
+//방 생성 user == null error
+socket.on('maekeRoomError', function () {
+  alert("유저 정보가 상이합니다. 다시 실행해주세요.");
+  location.href = "/";
+})
+
+
+
+//********************************************************************************** */
+
+
 
 $('#access-id').text(uuid);
 
@@ -31,32 +97,17 @@ $('#btn-reset').click(() => {
   socket.emit('roomListLoad');
 });
 
+
 //방 생성 버튼
 $('#btn-make-room').click(() => {
-  socket.emit("makeRoom");
-});
+  //이미 접속해있는 방이 있는 지 확인 : db연결 후 가능하지 않을까..
+  if (user.connecting !== '') {
+    socket.emit('getRoomName', user.connecting)
+  } else {
+    //방생성
+    socket.emit("makeRoom");
+  }
 
-//유저 접속 정보 전달
-socket.emit("login", user);
-
-
-
-//방 생성 완료
-socket.on('makeRoomSuccess', function (roomData, userData) {
-  console.log(userData);
-  user = userData;
-  //socket.emit('beforeEnterRoom',roomData.id);
-  location.href = '/room?id=' + roomData.id; //해당 방으로 이동 처리
-});
-
-
-//방 리스트 요청
-socket.emit('roomListLoad');
-
-
-//방 리스트 노출
-socket.on('roomList', function (data) {
-  roomListAppend(data); // 방 리스트 
 });
 
 
@@ -83,26 +134,14 @@ function roomListAppend(data) {
           'room': roomId,
           'user': user
         };
-        //인원 체크
-        socket.emit("checkRoom", data);
+        //이미 접속해있는 방이 있는 지 확인
+        if (user.connecting !== '' && user.connecting !== roomId) {
+          socket.emit('getRoomName',user.connecting)
+        } else {
+          //인원 체크
+          socket.emit("checkRoom", data);
+        }
       });
     }
   }
 }
-
-  //방 입장 인원체크 후 이동
-  socket.on('checkRoomFlag', function (flag, data) {
-    if(flag == true){
-      socket.emit('enterRoom',data);
-      location.href='/room?id=' + data; 
-    }else{ 
-      alert("인원초과로 들어가실 수 없습니다."); 
-    } 
-  });
-
-
-  //방 생성 user == null error
-  socket.on('maekeRoomError',function(){
-    alert("유저 정보가 상이합니다. 다시 실행해주세요.");
-    location.href="/";
-  })
