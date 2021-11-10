@@ -7,8 +7,7 @@
 '''
 
 import sys, os, datetime, pymysql, json, random, time
-sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))))
 from config import ib_config as cfg
 from config import ib_function as fn
 
@@ -18,7 +17,7 @@ CFilePath = cfg.CFilepathInfo()
 CDev02dbMaster = cfg.CDev02dbMaster()
 
 # init variables
-strLogAlias = "MazePlayController"
+strLogAlias = "SudokuPlayController"
 dtToday = datetime.datetime.now()
 strProcessRunTime = "".join([dtToday.strftime('%Y%m%d'), '_', dtToday.strftime('%H')])
 strSysLogFileName = "".join([strProcessRunTime, '_', CFilePath.alias, '_', strLogAlias, '.log'])
@@ -39,14 +38,6 @@ finally:
 class SudokuPlayController:
 
     def __init__(self):
-        self.origin_board = [[0 for j in range(0,9)] for i in range(0,9)]
-        self.board = [[0 for j in range(0,9)] for i in range(0,9)]
-        self.row = [[0 for j in range(0,10)] for i in range(0,10)]
-        self.col = [[0 for j in range(0,10)] for i in range(0,10)]
-        self.diag = [[0 for j in range(0,10)] for i in range(0,10)]
-        self.terminate_flag = False
-        self.nCnt = 0
-
         '''
         # rgAreaRuleBoard   |  # rgStraightRuleBoard
         [                   |  [
@@ -56,8 +47,8 @@ class SudokuPlayController:
             [0, 0, 0, 0]    |      [0, 0, 0, 0]
         ]                   |  ]
         '''
-        self.rgAreaRuleBoard = [[0 for j in range(0,4)] for i in range(0,4)]
-        self.rgStraightRuleBoard = [[0 for j in range(0,4)] for i in range(0,4)]
+        self.rgAreaRuleBoard = [[0 for j in range(0,9)] for i in range(0,9)]
+        self.rgStraightRuleBoard = [[0 for j in range(0,9)] for i in range(0,9)]
 
         '''
         # rgRuleBaseRow       |  # rgRuleBaseCol       |  # rgRuleBaseDiag
@@ -68,20 +59,20 @@ class SudokuPlayController:
             [0, 0, 0, 0, 0]   |      [0, 0, 0, 0, 0]   |      [0, 0, 0, 0, 0],
         ]                     |  ]                     |  ]
         '''        
-        self.rgRuleBaseRow = [[0 for j in range(0,5)] for i in range(0,5)]
-        self.rgRuleBaseCol = [[0 for j in range(0,5)] for i in range(0,5)]
-        self.rgRuleBaseDiag = [[0 for j in range(0,5)] for i in range(0,5)]
+        self.rgRuleBaseRow = [[0 for j in range(0,10)] for i in range(0,10)]
+        self.rgRuleBaseCol = [[0 for j in range(0,10)] for i in range(0,10)]
+        self.rgRuleBaseDiag = [[0 for j in range(0,10)] for i in range(0,10)]
         self.bTerminate = False
 
-        rgDiagSeq = [0,3]
-        for nOffset in range(0,4,2): # nOffset : 0 or 2
-            rgVariable = [i for i in range(1,5)] # rgVariable = [1,2,3,4]
+        rgDiagSeq = [0,4,8]
+        for nOffset in range(0,9,3): # nOffset : 0 or 2
+            rgVariable = [i for i in range(1,10)] # rgVariable = [1,2,3,4]
             random.shuffle(rgVariable)
 
-            for nIndex in range(0,4): # nIndex = 0 or 1 or 2 or 3
-                nRowValue = nIndex // 2 # i = 0 or 0 or 1 or 1
-                nColValue = nIndex % 2 # j = 0 or 1 or 0 or 1
-                nOffsetValue = nOffset // 2 # a = 0 or 1
+            for nIndex in range(0,9): # nIndex = 0 or 1 or 2 or 3
+                nRowValue = nIndex // 3 # i = 0 or 0 or 1 or 1
+                nColValue = nIndex % 3 # j = 0 or 1 or 0 or 1
+                nOffsetValue = nOffset // 3 # a = 0 or 1
                 nDiagValue = rgDiagSeq[nOffsetValue] # k = 0 or 3
                 
                 '''
@@ -154,17 +145,17 @@ class SudokuPlayController:
         if self.bTerminate == True:
             return True
 
-        if nLastPrevious > 15:
-            for i in range(0,4):
-                for j in range(0,4):
+        if nLastPrevious > 80:
+            for i in range(0,9):
+                for j in range(0,9):
                     self.rgStraightRuleBoard[i][j] = self.rgAreaRuleBoard[i][j]
 
             self.bTerminate = True
             return True
 
         # 2차원 배열의 rgRuleBaseCol과 rgRuleBaseRow를 찾기위한 포인트
-        nCol, nRow = nLastPrevious // 4, nLastPrevious % 4
-        nStartNumber = random.randint(1,4)
+        nCol, nRow = nLastPrevious // 9, nLastPrevious % 9
+        nStartNumber = random.randint(1,9)
         #print("nLastPrevious : " + str(nLastPrevious), ", nCol : " + str(nCol), ", nRow : " + str(nRow), ", nStart : " + str(nStart))
         #print(rgAreaRuleBoard[nCol][nRow])
         
@@ -173,9 +164,9 @@ class SudokuPlayController:
             #print("OUT 1 : " + str(nLastPrevious))
             self.fnMakeSudoku(nLastPrevious + 1)
 
-        for nCheckNumber in range(1,5): # m = 1 or 2 or 3 or 4
-            nCheckNumber = 1 + (nCheckNumber + nStartNumber) % 4 # m = 1 or 2 or 3 or 4
-            nDepthNumber = (nCol // 2) * 2 + (nRow // 2)
+        for nCheckNumber in range(1,10): # m = 1 or 2 or 3 or 4
+            nCheckNumber = 1 + (nCheckNumber + nStartNumber) % 9 # m = 1 or 2 or 3 or 4
+            nDepthNumber = (nCol // 3) * 3 + (nRow // 3)
             #print("nCheckNumber : " + str(nCheckNumber), ", nDepthNumber : " + str(nDepthNumber))
             #print("["+str(nRow)+"]["+str(nCheckNumber)+"]", "["+str(nCol)+"]["+str(nCheckNumber)+"]", "["+str(nDepthNumber)+"]["+str(nCheckNumber)+"]", rgRuleBaseCol[nRow][nCheckNumber], rgRuleBaseRow[nCol][nCheckNumber], rgRuleBaseDiag[nDepthNumber][nCheckNumber])
 
@@ -195,7 +186,7 @@ class SudokuPlayController:
     def fnHintArrowInit(self, bShowMode):
         self.fnMakeSudoku(0)
 
-        rgBoardInit = [self.rgStraightRuleBoard[i] for i in range(0,4)]
+        rgBoardInit = [self.rgStraightRuleBoard[i] for i in range(0,9)]
 
         rgHint = []
         for x in range(0,len(rgBoardInit)-1):
@@ -214,3 +205,6 @@ class SudokuPlayController:
         rgBoard = self.fnHintArrowInit(True)
         print("sudoku", rgBoard[0])
         print("hint", rgBoard[1])
+
+CSudoku = SudokuPlayController()
+CSudoku.fnPlaySudoku()
