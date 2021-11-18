@@ -41,6 +41,7 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
         self.port = config.port
         self.dbname = config.db
         self.charset = config.charset
+        self.isTrans = False
         self.dbconn = None
         
         dtToday = datetime.datetime.now()
@@ -74,6 +75,8 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
             nAffectedRows = 0
             
             with self.dbconn.cursor() as cursor:
+                self.isTrans = True
+                
                 if 'SELECT' in strQuery:
                     cursor.execute(strQuery, rgColValue)
                     rstList = cursor.fetchall()
@@ -84,25 +87,42 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
                     
                     return [True, rgRecords]
                 elif "INSERT" in strQuery:
-                    if(rgColValue is not None):
-                        if(str(type(rgColValue)) == "<class 'list'>"):
+                    if (rgColValue is not None):
+                        if (str(type(rgColValue)) == "<class 'list'>"):
                             bColValueTypeisList = True
 
-                if(bColValueTypeisList is True):
+                if (bColValueTypeisList == True):
                     rstList = cursor.executemany(strQuery, rgColValue)
                 else:
                     rstList = cursor.execute(strQuery, rgColValue)        
 
-                self.dbconn.commit()
                 nAffectedRows = cursor.rowcount
                 cursor.close()
                 
                 return [True, nAffectedRows]
         except pymysql.MySQLError as e:
             self.CibLogSys.info(e)
+                
             return [False, e]
         finally:
             del rgRecords, rstList, nAffectedRows, bColValueTypeisList
+
+    def transactionCommit(self):
+        try:
+            if (self.isTrans == True):
+                self.dbconn.commit()
+        except pymysql.MySQLError as e:
+            if (self.isTrans == True):
+                self.transactionRollback()
+        finally:
+            self.isTrans = False
+        
+    def transactionRollback(self):
+        try:
+            if (self.isTrans == True):
+                self.dbconn.rollback()
+        finally:
+            self.isTrans = False
         
     def InsertLastId(self):
         return self.Execute('SELECT LAST_INSERT_ID()')
@@ -149,7 +169,7 @@ if (rstList[0] == False):
     print("데이터 등록 오류")
 print("데이터 등록 결과 (last_insert_id) : ", rstList[1])
 
-rstList = CdbDev02dbMaster.Execute("UPDATE last_insert_id_table SET col='nestopia' WHERE col='insertbaek'")
+rstList = CdbDev02dbMaster.Execute("UPDATE last_insert_id_table SET col='insertbaek' WHERE col='nestopia'")
 if (rstList[0] == False):
     print("데이터 수정 오류")
 print("데이터 수정 결과 (Affected_Rows) : ", rstList[1])
@@ -164,5 +184,6 @@ if (rstList[0] == False):
     print("데이터 등록 오류")
 print("데이터 등록 결과 (last_insert_id) : ", rstList[1])
 
+CdbDev02dbMaster.transactionCommit()
 
 CdbDev02dbMaster.DisConnection()
