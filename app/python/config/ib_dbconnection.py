@@ -118,6 +118,16 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
             self.CibLogSys.info(e)
             return [False, e]
 
+"""
+ib_dev02_01 DB Create Schema
+
+CREATE TABLE `last_insert_id_table` ( 
+	`id` INT(11) NOT NULL AUTO_INCREMENT, 
+	`col` VARCHAR(10) DEFAULT NULL, 
+	PRIMARY KEY (`id`)
+) ENGINE=INNODB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+"""
+
 
 """DbConnection Sample"""
 CdbDev02dbMaster = DbConnection('dbDev02')
