@@ -124,12 +124,12 @@ CdbDev02dbMaster = DbConnection('dbDev02')
 if (CdbDev02dbMaster.Connection() == False):
     print("DB 연결에 실패하였습니다.")
     
-rstList = CdbDev02dbMaster.Execute('SELECT * FROM user_id WHERE user_id=%s', ['b0071'])
+rstList = CdbDev02dbMaster.Execute('SELECT * FROM user_id WHERE user_id=%s OR user_id=%s', ['b0071','nestopia'])
 if (rstList[0] == False):
     print("데이터 조회 오류")
 print("데이터 조회 결과 : ", rstList[1])
 
-rstList = CdbDev02dbMaster.Execute("INSERT INTO last_insert_id_table set col='insertbaek'")
+rstList = CdbDev02dbMaster.Execute("INSERT INTO last_insert_id_table SET col='insertbaek'")
 if (rstList[0] == False):
     print("데이터 등록 오류")
 print("데이터 등록 결과 (Affected_Rows) : ", rstList[1])
@@ -138,5 +138,21 @@ rstList = CdbDev02dbMaster.InsertLastId()
 if (rstList[0] == False):
     print("데이터 등록 오류")
 print("데이터 등록 결과 (last_insert_id) : ", rstList[1])
+
+rstList = CdbDev02dbMaster.Execute("UPDATE last_insert_id_table SET col='nestopia' WHERE col='insertbaek'")
+if (rstList[0] == False):
+    print("데이터 수정 오류")
+print("데이터 수정 결과 (Affected_Rows) : ", rstList[1])
+
+rstList = CdbDev02dbMaster.Execute("INSERT INTO last_insert_id_table (col) VALUES (%s)", [['star1'],['star2']])
+if (rstList[0] == False):
+    print("데이터 등록 오류")
+print("데이터 등록 결과 (Affected_Rows) : ", rstList[1])
+
+rstList = CdbDev02dbMaster.InsertLastId()
+if (rstList[0] == False):
+    print("데이터 등록 오류")
+print("데이터 등록 결과 (last_insert_id) : ", rstList[1])
+
 
 CdbDev02dbMaster.DisConnection()
