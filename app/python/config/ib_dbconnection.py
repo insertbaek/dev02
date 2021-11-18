@@ -70,10 +70,11 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
         try:
             self.CibLogSys.info([strQuery, rgColValue])
             bColValueTypeisList = False
+            rgRecords = []
+            nAffectedRows = 0
             
             with self.dbconn.cursor() as cursor:
                 if 'SELECT' in strQuery:
-                    rgRecords = []
                     cursor.execute(strQuery, rgColValue)
                     rstList = cursor.fetchall()
                     
@@ -93,15 +94,15 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
                     rstList = cursor.execute(strQuery, rgColValue)        
 
                 self.dbconn.commit()
-                affected = cursor.rowcount
+                nAffectedRows = cursor.rowcount
                 cursor.close()
                 
-                return [True, affected]
+                return [True, nAffectedRows]
         except pymysql.MySQLError as e:
             self.CibLogSys.info(e)
             return [False, e]
         finally:
-            del rgRecords, rstList, affected, bColValueTypeisList
+            del rgRecords, rstList, nAffectedRows, bColValueTypeisList
         
     def InsertLastId(self):
         return self.Execute('SELECT LAST_INSERT_ID()')
