@@ -100,6 +100,8 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
         except pymysql.MySQLError as e:
             self.CibLogSys.info(e)
             return [False, e]
+        finally:
+            del rgRecords, rstList, affected, bColValueTypeisList
         
     def InsertLastId(self):
         return self.Execute('SELECT LAST_INSERT_ID()')
