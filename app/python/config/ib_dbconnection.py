@@ -46,6 +46,7 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
         self.threadId = 0
         self.dbconn = None
         self.isDict = None
+        self.isAutoCommit = None
         
         self.dtToday = datetime.datetime.now()
         strProcessRunTime = "".join([self.dtToday.strftime('%Y%m%d'), '_', self.dtToday.strftime('%H')])
@@ -53,7 +54,7 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
         
         self.CibLogSys = fn.CibLog(self.python_syslog, str(strSysLogFileName), self.strLogAlias)
         
-    def Connection(self, isDictType):
+    def Connection(self, isAutoCommitType, isDictType):
         try:
             if self.dbconn is None:
                 self.dbconn = pymysql.connect(
@@ -62,11 +63,14 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
                     passwd=self.password,
                     db=self.dbname,
                     port=self.port,
-                    charset=self.charset
+                    charset=self.charset,
+                    autocommit=isAutoCommitType
                 )
                 
                 if (isDictType == True):
                     self.isDict = pymysql.cursors.DictCursor
+                    
+                self.isAutoCommit = isAutoCommitType
                 
                 return [True, 0]
         except pymysql.MySQLError as e:
@@ -84,7 +88,9 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
             nAffectedRows = 0
             
             with self.dbconn.cursor(self.isDict) as cursor:
-                self.isTrans = True
+                if (self.isAutoCommit == False):
+                    self.isTrans = True
+                    
                 self.insertlastid = 0
                 
                 if 'SELECT' in strQuery:
@@ -171,7 +177,7 @@ CREATE TABLE `last_insert_id_table` (
 
 """DbConnection Sample"""
 CdbDev02dbMaster = DbConnection('dbDev02')
-if (CdbDev02dbMaster.Connection(isDictType=True) == False):
+if (CdbDev02dbMaster.Connection(isAutoCommitType=False, isDictType=True) == False):
     print("DB 연결에 실패하였습니다.")
     
 rstList = CdbDev02dbMaster.Execute('SELECT * FROM user_id WHERE user_id=%s OR user_id=%s', ['b0071','nestopia'])
