@@ -111,26 +111,26 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
                 return [True, nAffectedRows]
         except pymysql.MySQLError as e:
             self.CibLogSys.info([self.threadId, e])
-            self.transactionRollback()
+            self.TransactionRollback()
                 
             return [False, e]
         finally:
             del rgRecords, rstList, nAffectedRows, bColValueTypeisList
 
-    def transactionCommit(self):
+    def TransactionCommit(self):
         try:
             if (self.isTrans == True):
                 self.CibLogSys.info([self.threadId, 'TRANSACTION COMMIT'])
                 self.dbconn.commit()
         except pymysql.MySQLError as e:
             if (self.isTrans == True):
-                self.transactionRollback()
+                self.TransactionRollback()
         finally:
             self.isTrans = False
             self.insertlastid = 0
             self.threadId = 0
         
-    def transactionRollback(self):
+    def TransactionRollback(self):
         try:
             if (self.isTrans == True):
                 self.CibLogSys.info([self.threadId, 'TRANSACTION ROLLBACK'])
@@ -194,6 +194,6 @@ print("데이터 등록 결과 (Affected_Rows) : ", rstList[1])
 
 print("데이터 등록 결과 (last_insert_id) : ", CdbDev02dbMaster.InsertLastId())
 
-CdbDev02dbMaster.transactionCommit()
+CdbDev02dbMaster.TransactionCommit()
 
 CdbDev02dbMaster.DisConnection()
