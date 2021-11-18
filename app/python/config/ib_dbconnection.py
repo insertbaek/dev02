@@ -18,6 +18,7 @@ class CDbConnectionInfo:
         self.password = str("IBqwe123!@#")
         self.port = int(3306)
         self.socket = str("/var/lib/mysql/mysql.sock")
+        self.charset = str("utf8")
         
         return self
     
@@ -39,6 +40,7 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
         self.password = config.password
         self.port = config.port
         self.dbname = config.db
+        self.charset = config.charset
         self.dbconn = None
         
         dtToday = datetime.datetime.now()
@@ -56,7 +58,7 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
                     passwd=self.password,
                     db=self.dbname,
                     port=self.port,
-                    charset='utf8'
+                    charset=self.charset
                 )
                 
                 return [True, 0]
@@ -89,6 +91,9 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
         except pymysql.MySQLError as e:
             self.CibLogSys.info(e)
             return [False, e]
+        
+    def InsertLastId(self):
+        return self.Execute('SELECT LAST_INSERT_ID()')
                 
     def DisConnection(self):
         try:
@@ -110,11 +115,16 @@ if (CdbDev02dbMaster.Connection() == False):
 rstList = CdbDev02dbMaster.Execute('SELECT * from user_id')
 if (rstList[0] == False):
     print("데이터 조회 오류")
-print("데이터 조회 결과 :", rstList[1])
+print("데이터 조회 결과 : ", rstList[1])
 
-rstList = CdbDev02dbMaster.Execute("UPDATE user_id SET user_id='insertbaek' WHERE user_id='b0071'")
+rstList = CdbDev02dbMaster.Execute("INSERT INTO last_insert_id_table set col='insertbaek'")
 if (rstList[0] == False):
-    print("데이터 수정 오류")
-print("데이터 수정 결과 (Affected_Rows) :", rstList[1])
+    print("데이터 등록 오류")
+print("데이터 등록 결과 (Affected_Rows) : ", rstList[1])
+
+rstList = CdbDev02dbMaster.InsertLastId()
+if (rstList[0] == False):
+    print("데이터 등록 오류")
+print("데이터 등록 결과 (last_insert_id) : ", rstList[1])
 
 CdbDev02dbMaster.DisConnection()
