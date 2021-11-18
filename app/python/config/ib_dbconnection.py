@@ -66,26 +66,26 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
             self.CibLogSys.info(e)
             return [False, e]
 
-    def Execute(self, strQuery):
+    def Execute(self, strQuery, rgColValue = None):
         try:
-            self.CibLogSys.info(strQuery)
+            self.CibLogSys.info([strQuery, rgColValue])
             
-            with self.dbconn.cursor() as cur:
+            with self.dbconn.cursor() as cursor:
                 if 'SELECT' in strQuery:
                     rgRecords = []
-                    cur.execute(strQuery)
-                    rstList = cur.fetchall()
+                    cursor.execute(strQuery, rgColValue)
+                    rstList = cursor.fetchall()
                     
                     for row in rstList:
                         rgRecords.append(row)
-                    cur.close()
+                    cursor.close()
                     
                     return [True, rgRecords]
                 
-                rstList = cur.execute(strQuery)
+                rstList = cursor.execute(strQuery, rgColValue)
                 self.dbconn.commit()
-                affected = cur.rowcount
-                cur.close()
+                affected = cursor.rowcount
+                cursor.close()
                 
                 return [True, affected]
         except pymysql.MySQLError as e:
@@ -112,7 +112,7 @@ CdbDev02dbMaster = DbConnection('dbDev02')
 if (CdbDev02dbMaster.Connection() == False):
     print("DB 연결에 실패하였습니다.")
     
-rstList = CdbDev02dbMaster.Execute('SELECT * from user_id')
+rstList = CdbDev02dbMaster.Execute('SELECT * FROM user_id WHERE user_id=%s', ['b0071'])
 if (rstList[0] == False):
     print("데이터 조회 오류")
 print("데이터 조회 결과 : ", rstList[1])
