@@ -45,6 +45,7 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
         self.insertlastid = 0
         self.threadId = 0
         self.dbconn = None
+        self.isDict = None
         
         self.dtToday = datetime.datetime.now()
         strProcessRunTime = "".join([self.dtToday.strftime('%Y%m%d'), '_', self.dtToday.strftime('%H')])
@@ -52,7 +53,7 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
         
         self.CibLogSys = fn.CibLog(self.python_syslog, str(strSysLogFileName), self.strLogAlias)
         
-    def Connection(self):
+    def Connection(self, isDictType):
         try:
             if self.dbconn is None:
                 self.dbconn = pymysql.connect(
@@ -63,6 +64,9 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
                     port=self.port,
                     charset=self.charset
                 )
+                
+                if (isDictType == True):
+                    self.isDict = pymysql.cursors.DictCursor
                 
                 return [True, 0]
         except pymysql.MySQLError as e:
@@ -79,7 +83,7 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
             rgRecords = []
             nAffectedRows = 0
             
-            with self.dbconn.cursor(pymysql.cursors.DictCursor) as cursor:
+            with self.dbconn.cursor(self.isDict) as cursor:
                 self.isTrans = True
                 self.insertlastid = 0
                 
@@ -167,7 +171,7 @@ CREATE TABLE `last_insert_id_table` (
 
 """DbConnection Sample"""
 CdbDev02dbMaster = DbConnection('dbDev02')
-if (CdbDev02dbMaster.Connection() == False):
+if (CdbDev02dbMaster.Connection(isDictType=True) == False):
     print("DB 연결에 실패하였습니다.")
     
 rstList = CdbDev02dbMaster.Execute('SELECT * FROM user_id WHERE user_id=%s OR user_id=%s', ['b0071','nestopia'])
