@@ -43,6 +43,7 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
         self.charset = config.charset
         self.isTrans = False
         self.dbconn = None
+        self.insertlastid = 0
         
         dtToday = datetime.datetime.now()
         strProcessRunTime = "".join([dtToday.strftime('%Y%m%d'), '_', dtToday.strftime('%H')])
@@ -97,6 +98,9 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
                     rstList = cursor.execute(strQuery, rgColValue)        
 
                 nAffectedRows = cursor.rowcount
+                
+                self.insertlastid = cursor.execute('SELECT LAST_INSERT_ID()')
+                
                 cursor.close()
                 
                 return [True, nAffectedRows]
@@ -125,7 +129,7 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
             self.isTrans = False
         
     def InsertLastId(self):
-        return self.Execute('SELECT LAST_INSERT_ID()')
+        return self.insertlastid
                 
     def DisConnection(self):
         try:
