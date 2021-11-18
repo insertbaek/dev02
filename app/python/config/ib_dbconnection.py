@@ -46,7 +46,7 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
         self.threadId = 0
         self.dbconn = None
         self.isDict = None
-        self.isAutoCommit = None
+        self.isAutoCommit = False
         
         self.dtToday = datetime.datetime.now()
         strProcessRunTime = "".join([self.dtToday.strftime('%Y%m%d'), '_', self.dtToday.strftime('%H')])
@@ -54,9 +54,12 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
         
         self.CibLogSys = fn.CibLog(self.python_syslog, str(strSysLogFileName), self.strLogAlias)
         
-    def Connection(self, isAutoCommitType, isDictType):
+    def Connection(self, isAutoCommitType = False, isDictType = True):
         try:
             if self.dbconn is None:
+                if (isAutoCommitType == True):
+                    self.isAutoCommit = True
+                
                 self.dbconn = pymysql.connect(
                     host=self.host,
                     user=self.username,
@@ -64,13 +67,11 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
                     db=self.dbname,
                     port=self.port,
                     charset=self.charset,
-                    autocommit=isAutoCommitType
+                    autocommit=self.isAutoCommit
                 )
                 
                 if (isDictType == True):
                     self.isDict = pymysql.cursors.DictCursor
-                    
-                self.isAutoCommit = isAutoCommitType
                 
                 return [True, 0]
         except pymysql.MySQLError as e:
