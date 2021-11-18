@@ -79,7 +79,7 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
             rgRecords = []
             nAffectedRows = 0
             
-            with self.dbconn.cursor() as cursor:
+            with self.dbconn.cursor(pymysql.cursors.DictCursor) as cursor:
                 self.isTrans = True
                 self.insertlastid = 0
                 
