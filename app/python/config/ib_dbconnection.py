@@ -42,8 +42,8 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
         self.dbname = config.db
         self.charset = config.charset
         self.isTrans = False
-        self.dbconn = None
         self.insertlastid = 0
+        self.dbconn = None
         
         dtToday = datetime.datetime.now()
         strProcessRunTime = "".join([dtToday.strftime('%Y%m%d'), '_', dtToday.strftime('%H')])
@@ -77,6 +77,7 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
             
             with self.dbconn.cursor() as cursor:
                 self.isTrans = True
+                self.insertlastid = 0
                 
                 if 'SELECT' in strQuery:
                     cursor.execute(strQuery, rgColValue)
