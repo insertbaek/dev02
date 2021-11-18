@@ -69,6 +69,7 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
     def Execute(self, strQuery, rgColValue = None):
         try:
             self.CibLogSys.info([strQuery, rgColValue])
+            bColValueTypeisList = False
             
             with self.dbconn.cursor() as cursor:
                 if 'SELECT' in strQuery:
@@ -81,8 +82,16 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
                     cursor.close()
                     
                     return [True, rgRecords]
-                
-                rstList = cursor.execute(strQuery, rgColValue)
+                elif "INSERT" in strQuery:
+                    if(rgColValue is not None):
+                        if(str(type(rgColValue)) == "<class 'list'>"):
+                            bColValueTypeisList = True
+
+                if(bColValueTypeisList is True):
+                    rstList = cursor.executemany(strQuery, rgColValue)
+                else:
+                    rstList = cursor.execute(strQuery, rgColValue)        
+
                 self.dbconn.commit()
                 affected = cursor.rowcount
                 cursor.close()
