@@ -43,10 +43,11 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
         self.charset = config.charset
         self.isTrans = False
         self.insertlastid = 0
+        self.threadId = 0
         self.dbconn = None
         
-        dtToday = datetime.datetime.now()
-        strProcessRunTime = "".join([dtToday.strftime('%Y%m%d'), '_', dtToday.strftime('%H')])
+        self.dtToday = datetime.datetime.now()
+        strProcessRunTime = "".join([self.dtToday.strftime('%Y%m%d'), '_', self.dtToday.strftime('%H')])
         strSysLogFileName = "".join([strProcessRunTime, '_', self.alias, '_', self.strLogAlias, '_', self.dbname, '.log'])
         
         self.CibLogSys = fn.CibLog(self.python_syslog, str(strSysLogFileName), self.strLogAlias)
@@ -70,7 +71,10 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
 
     def Execute(self, strQuery, rgColValue = None):
         try:
-            self.CibLogSys.info([strQuery, rgColValue])
+            if (self.threadId == 0):
+                self.threadId = self.dtToday.strftime('%Y%m%d%H%M%S.%f')
+                
+            self.CibLogSys.info([self.threadId, 'TRANSACTION QUERY', strQuery, rgColValue])
             bColValueTypeisList = False
             rgRecords = []
             nAffectedRows = 0
@@ -106,7 +110,8 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
                 
                 return [True, nAffectedRows]
         except pymysql.MySQLError as e:
-            self.CibLogSys.info(e)
+            self.CibLogSys.info([self.threadId, e])
+            self.transactionRollback()
                 
             return [False, e]
         finally:
@@ -115,19 +120,25 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
     def transactionCommit(self):
         try:
             if (self.isTrans == True):
+                self.CibLogSys.info([self.threadId, 'TRANSACTION COMMIT'])
                 self.dbconn.commit()
         except pymysql.MySQLError as e:
             if (self.isTrans == True):
                 self.transactionRollback()
         finally:
             self.isTrans = False
+            self.insertlastid = 0
+            self.threadId = 0
         
     def transactionRollback(self):
         try:
             if (self.isTrans == True):
+                self.CibLogSys.info([self.threadId, 'TRANSACTION ROLLBACK'])
                 self.dbconn.rollback()
         finally:
             self.isTrans = False
+            self.insertlastid = 0
+            self.threadId = 0
         
     def InsertLastId(self):
         return self.insertlastid
@@ -140,7 +151,7 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
                 
                 return [True, 0]
         except pymysql.MySQLError as e:
-            self.CibLogSys.info(e)
+            self.CibLogSys.info([self.threadId, e])
             return [False, e]
 
 """
@@ -169,10 +180,7 @@ if (rstList[0] == False):
     print("데이터 등록 오류")
 print("데이터 등록 결과 (Affected_Rows) : ", rstList[1])
 
-rstList = CdbDev02dbMaster.InsertLastId()
-if (rstList[0] == False):
-    print("데이터 등록 오류")
-print("데이터 등록 결과 (last_insert_id) : ", rstList[1])
+print("데이터 등록 결과 (last_insert_id) : ", CdbDev02dbMaster.InsertLastId())
 
 rstList = CdbDev02dbMaster.Execute("UPDATE last_insert_id_table SET col='insertbaek' WHERE col='nestopia'")
 if (rstList[0] == False):
@@ -184,10 +192,7 @@ if (rstList[0] == False):
     print("데이터 등록 오류")
 print("데이터 등록 결과 (Affected_Rows) : ", rstList[1])
 
-rstList = CdbDev02dbMaster.InsertLastId()
-if (rstList[0] == False):
-    print("데이터 등록 오류")
-print("데이터 등록 결과 (last_insert_id) : ", rstList[1])
+print("데이터 등록 결과 (last_insert_id) : ", CdbDev02dbMaster.InsertLastId())
 
 CdbDev02dbMaster.transactionCommit()
 
