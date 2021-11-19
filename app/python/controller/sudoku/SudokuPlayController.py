@@ -15,8 +15,10 @@ from config import ib_dbconnection as dbc
 class SudokuPlayController(fn.CValidate, cfg.CFilepathInfo):
     strLogAlias = "SudokuPlayController"
     
-    def __init__(self):
+    def __init__(self, bShowMode):
         cfg.CFilepathInfo.__init__(self)
+        
+        self.bSudokuHintType = bShowMode
         
         dtToday = datetime.datetime.now()
         strProcessRunTime = "".join([dtToday.strftime('%Y%m%d'), '_', dtToday.strftime('%H')])
@@ -179,7 +181,7 @@ class SudokuPlayController(fn.CValidate, cfg.CFilepathInfo):
         #print(rgAreaRuleBoard)
         #print("fnMakeSudoku : nLastPrevious => " + str(nLastPrevious), ", nCol => " + str(nCol), ", nRow => " + str(nRow), ", nStart => " + str(nStart))
 
-    def fnHintArrowInit(self, bShowMode):
+    def fnHintArrowInit(self):
         self.fnMakeSudoku(0)
 
         rgBoardInit = [self.rgStraightRuleBoard[i] for i in range(0,9)]
@@ -190,7 +192,7 @@ class SudokuPlayController(fn.CValidate, cfg.CFilepathInfo):
                 rgBoard = [rgBoardInit[x][y], rgBoardInit[x][y+1], rgBoardInit[x+1][y], rgBoardInit[x+1][y+1]]
                 rgHint.append(rgBoard.index(max(rgBoard)))
 
-        if bShowMode == True:
+        if self.bSudokuHintType == True:
             rgReturn = [[rgBoardInit], [rgHint]]
         else:
             rgReturn = [[rgBoardInit], [0]]
@@ -198,9 +200,9 @@ class SudokuPlayController(fn.CValidate, cfg.CFilepathInfo):
         return rgReturn
 
     def fnPlaySudoku(self):
-        rgBoard = self.fnHintArrowInit(True)
+        rgBoard = self.fnHintArrowInit()
         print("sudoku", rgBoard[0])
         print("hint", rgBoard[1])
 
-CSudoku = SudokuPlayController()
+CSudoku = SudokuPlayController(bShowMode = True)
 CSudoku.fnPlaySudoku()
