@@ -120,10 +120,10 @@ class SudokuPlayController(fn.CValidate, cfg.CFilepathInfo):
                 raise Exception('필수 데이터가 비어있습니다.')
             
             CdbDev02dbMaster = dbc.DbConnection('dbDev02')
-            if (CdbDev02dbMaster.Connection(isAutoCommitType=False, isDictType=True) == False):
-                print("DB 연결에 실패하였습니다.")
+            if (CdbDev02dbMaster.Connection(isAutoCommitType=True, isDictType=True) == False):
+                raise Exception('DB 연결에 실패하였습니다.')
                 
-            rstList = CdbDev02dbMaster.Execute('SELECT * FROM ib_dev02_01.sudoku_play_log_2021 WHERE seq= %s', nGameSeq)
+            rstList = CdbDev02dbMaster.Execute('SELECT * FROM ib_dev02_01.sudoku_play_log_2021 WHERE seq=%s', [nGameSeq])
             if (rstList[0] == False):
                 raise Exception('해당 항목에 대한 결과를 찾지 못하였습니다.')
             
