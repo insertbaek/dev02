@@ -41,6 +41,7 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
         self.port = config.port
         self.dbname = config.db
         self.charset = config.charset
+        
         self.isTrans = False
         self.insertlastid = 0
         self.threadId = 0
@@ -100,6 +101,7 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
                     
                     for row in rstList:
                         rgRecords.append(row)
+                        
                     cursor.close()
                     
                     return [True, rgRecords]
