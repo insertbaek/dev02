@@ -6,7 +6,7 @@
  @description
 '''
 
-import sys, os, datetime, pymysql, json, random, time
+import sys, os, datetime, json, random
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))))
 from config import ib_config as cfg
 from config import ib_function as fn
