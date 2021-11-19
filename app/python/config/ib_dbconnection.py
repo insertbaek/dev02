@@ -1,6 +1,7 @@
 import pymysql, datetime, inspect
 import ib_config as cfg
 import ib_function as fn
+from pymysql.err import Error
 
 class CDbConnectionInfo:
     def __init__(self):
@@ -174,6 +175,11 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
                 
     def DisConnection(self):
         try:
+            if (self.isTrans == True and self.isAutoCommit == False):
+                self.CibLogSys.info([self.threadId, "TRANSACTION 이 종료되지 않아 강제로 ROLLBACK 을 진행했습니다."])
+                self.TransactionRollback()
+                raise Exception('TRANSACTION 이 종료되지 않아 강제로 ROLLBACK 을 진행했습니다. 프로세스를 점검해 주세요.')
+                
             if self.dbconn:
                 self.dbconn.close()
                 self.dbconn = None
@@ -182,6 +188,9 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
         except pymysql.MySQLError as e:
             self.CibLogSys.info([self.threadId, self.currentFrame.f_back.f_lineno, e])
             return [False, e]
+        except Exception as e:
+            raise Error(e)
+            
 
 """
 ib_dev02_01 DB Create Schema
@@ -223,6 +232,7 @@ print("데이터 등록 결과 (Affected_Rows) : ", rstList[1])
 
 print("데이터 등록 결과 (last_insert_id) : ", CdbDev02dbMaster.InsertLastId())
 
-CdbDev02dbMaster.TransactionCommit()
+#CdbDev02dbMaster.TransactionCommit()
+#CdbDev02dbMaster.TransactionRollback()
 
 CdbDev02dbMaster.DisConnection()
