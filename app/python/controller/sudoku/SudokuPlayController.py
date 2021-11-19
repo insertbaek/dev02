@@ -119,24 +119,20 @@ class SudokuPlayController(fn.CValidate, cfg.CFilepathInfo):
             if not nGameSeq:
                 raise Exception('필수 데이터가 비어있습니다.')
             
-            with pymysql.connect(host=CDev02dbMaster.host, user=CDev02dbMaster.user, password=CDev02dbMaster.password, db=CDev02dbMaster.db, port=CDev02dbMaster.port, charset='utf8') as CDev02MasterDbconn:
-
-                with CDev02MasterDbconn.cursor(pymysql.cursors.DictCursor) as CDev02MasterCursor:
-                    if (CDev02MasterDbconn.open != True):
-                        raise Exception('서비스 상태를 확인해주세요.')
+            CdbDev02dbMaster = dbc.DbConnection('dbDev02')
+            if (CdbDev02dbMaster.Connection(isAutoCommitType=False, isDictType=True) == False):
+                print("DB 연결에 실패하였습니다.")
                 
-                    qryGameInfo = "SELECT * FROM ib_dev02_01.sudoku_play_log_2021 WHERE seq= %s"
-                    print(qryGameInfo)
-                    rstGameInfo = CDev02MasterCursor.execute(qryGameInfo, nGameSeq)
-                    if rstGameInfo  == -1:
-                        raise Exception('해당 항목에 대한 결과를 찾지 못하였습니다.')
-                    rgResult = CDev02MasterCursor.fetchall()
+            rstList = CdbDev02dbMaster.Execute('SELECT * FROM ib_dev02_01.sudoku_play_log_2021 WHERE seq= %s', nGameSeq)
+            if (rstList[0] == False):
+                raise Exception('해당 항목에 대한 결과를 찾지 못하였습니다.')
+            
+            #JSON 형식으로 변환하여 출력
+            strResult = json.dumps(rstList[1], ensure_ascii = False)
 
-                    #JSON 형식으로 변환하여 출력
-                    strResult = json.dumps(rgResult, ensure_ascii = False)
             return strResult
         except Exception as e:
-            CibLogSys.error(e)
+            self.CibLogSys.error(e)
             return str(e)
 
     def fnMakeSudoku(self, nLastPrevious):
