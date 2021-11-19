@@ -11,7 +11,6 @@ sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(os.path.abspath(
 from config import ib_config as cfg
 from config import ib_function as fn
 
-
 # init classes
 Cvalidate = fn.CValidate()
 CFilePath = cfg.CFilepathInfo()
@@ -46,6 +45,7 @@ def ListToDic(rgList):
     
     rgDic = {i : rgList[i] for i in range(len(rgList))}
     return rgDic
+
 # SELECT
 def getGameInfo (nGameSeq):
     print("OK!")
@@ -77,7 +77,6 @@ def getGameInfo (nGameSeq):
     finally :
         CDev02MasterDbconn.close()
 
-
 # INSERT
 def setGame (self, rgGameInfo):
     try:
@@ -105,6 +104,7 @@ def setGame (self, rgGameInfo):
         return str(e)
     finally :
         CDev02MasterDbconn.close()
+        
 # UPDATE  
 def setResult (self, rgGameInfo):
     try:
@@ -201,4 +201,3 @@ if __name__ == '__main__':
         print("[Err] Key <-> Value don't match!")
     except Exception as ex:
         print("[Err] ",ex)
-
