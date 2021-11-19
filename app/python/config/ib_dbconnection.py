@@ -23,10 +23,25 @@ class CDbConnectionInfo:
         
         return self
     
+    def dbDevRepair(self):
+        self.host = str("192.168.56.14")
+        self.db = str("ib_repair_db")
+        self.user = str("dev_repair")
+        self.password = str("IBqwe123!@#")
+        self.port = int(3306)
+        self.socket = str("/var/lib/mysql/mysql.sock")
+        self.charset = str("utf8")
+        
+        return self
+    
     """db 접속 정보 추가시 하단 if문 추가"""
     def DbInterface(self, strDbInterface):
-        if(strDbInterface == 'dbDev02'):
+        if (strDbInterface == 'dbDev02'):
             return self.dbDev02()
+        elif (strDbInterface == 'dbDevRepair'):
+            return self.dbDevRepair()
+        else:
+            return False
         
 
 class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
@@ -35,6 +50,9 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
     def __init__(self, strDbInterface):
         cfg.CFilepathInfo.__init__(self)
         config = self.DbInterface(strDbInterface)
+        
+        if (config == False):
+            raise Error("클래스 인스턴스 정의 에러.")
         
         self.host = config.host
         self.username = config.user
