@@ -185,7 +185,7 @@ CREATE TABLE `last_insert_id_table` (
 
 """DbConnection Sample"""
 CdbDev02dbMaster = DbConnection('dbDev02')
-if (CdbDev02dbMaster.Connection(isAutoCommitType=True, isDictType=True) == False):
+if (CdbDev02dbMaster.Connection(isAutoCommitType=False, isDictType=True) == False):
     print("DB 연결에 실패하였습니다.")
     
 rstList = CdbDev02dbMaster.Execute('SELECT * FROM user_id WHERE user_id=%s OR user_id=%s', ['b0071','nestopia'])
@@ -212,6 +212,6 @@ print("데이터 등록 결과 (Affected_Rows) : ", rstList[1])
 
 print("데이터 등록 결과 (last_insert_id) : ", CdbDev02dbMaster.InsertLastId())
 
-#CdbDev02dbMaster.TransactionCommit()
+CdbDev02dbMaster.TransactionCommit()
 
 CdbDev02dbMaster.DisConnection()
