@@ -127,6 +127,8 @@ class SudokuPlayController(fn.CValidate, cfg.CFilepathInfo):
             if (rstList[0] == False):
                 raise Exception('해당 항목에 대한 결과를 찾지 못하였습니다.')
             
+            CdbDev02dbMaster.DisConnection()
+            
             #JSON 형식으로 변환하여 출력
             strResult = json.dumps(rstList[1], ensure_ascii = False)
 
