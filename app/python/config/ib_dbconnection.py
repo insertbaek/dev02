@@ -1,6 +1,6 @@
 import pymysql, datetime, inspect
-import ib_config as cfg
-import ib_function as fn
+from config import ib_config as cfg
+from config import ib_function as fn
 from pymysql.err import Error
 
 class CDbConnectionInfo:
@@ -204,6 +204,12 @@ CREATE TABLE `last_insert_id_table` (
 
 
 """DbConnection Sample"""
+"""
+단일 py 테스트 시 상단 패키지 변경
+import ib_config as cfg
+import ib_function as fn
+
+
 CdbDev02dbMaster = DbConnection('dbDev02')
 if (CdbDev02dbMaster.Connection(isAutoCommitType=False, isDictType=True) == False):
     print("DB 연결에 실패하였습니다.")
@@ -236,3 +242,4 @@ print("데이터 등록 결과 (last_insert_id) : ", CdbDev02dbMaster.InsertLast
 #CdbDev02dbMaster.TransactionRollback()
 
 CdbDev02dbMaster.DisConnection()
+"""

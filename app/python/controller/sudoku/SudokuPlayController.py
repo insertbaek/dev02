@@ -10,34 +10,32 @@ import sys, os, datetime, pymysql, json, random, time
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))))
 from config import ib_config as cfg
 from config import ib_function as fn
+from config import ib_dbconnection as dbc
 
-# init classes
-Cvalidate = fn.CValidate()
-CFilePath = cfg.CFilepathInfo()
-CDev02dbMaster = cfg.CDev02dbMaster()
-
-# init variables
-strLogAlias = "SudokuPlayController"
-dtToday = datetime.datetime.now()
-strProcessRunTime = "".join([dtToday.strftime('%Y%m%d'), '_', dtToday.strftime('%H')])
-strSysLogFileName = "".join([strProcessRunTime, '_', CFilePath.alias, '_', strLogAlias, '.log'])
-CibLogSys = fn.CibLog(CFilePath.python_syslog, str(strSysLogFileName), strLogAlias)
-
-try:
-	for oConfig in [CFilePath, CDev02dbMaster]:
-		bResult = Cvalidate.isDictEmpty(oConfig.__dict__)
-
-		if not bResult:
-			raise Exception(Cvalidate.getDictEmpty())
-except Exception as e:
-	print('환경설정 중' + str(e) + '항목 정의가 올바르지 않습니다.')
-	sys.exit()
-finally:
-	del oConfig, bResult
-
-class SudokuPlayController:
-
+class SudokuPlayController(fn.CValidate, cfg.CFilepathInfo):
+    strLogAlias = "SudokuPlayController"
+    
     def __init__(self):
+        cfg.CFilepathInfo.__init__(self)
+        
+        dtToday = datetime.datetime.now()
+        strProcessRunTime = "".join([dtToday.strftime('%Y%m%d'), '_', dtToday.strftime('%H')])
+        strSysLogFileName = "".join([strProcessRunTime, '_', self.alias, '_', self.strLogAlias, '.log'])
+
+        self.CibLogSys = fn.CibLog(self.python_syslog, str(strSysLogFileName), self.strLogAlias)
+
+        try:
+            for oConfig in [cfg.CFilepathInfo()]:
+                bResult = self.isDictEmpty(oConfig.__dict__)
+                
+                if not bResult:
+                    raise Exception(self.getDictEmpty())
+        except Exception as e:
+            print('환경설정 중 "' + str(e) + '" 항목 정의가 올바르지 않습니다.')
+            sys.exit()
+        finally:
+            del oConfig, bResult
+        
         '''
         # rgAreaRuleBoard   |  # rgStraightRuleBoard
         [                   |  [
