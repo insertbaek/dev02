@@ -15,10 +15,10 @@ from config import ib_dbconnection as dbc
 class SudokuPlayController(fn.CValidate, cfg.CFilepathInfo):
     strLogAlias = "SudokuPlayController"
     
-    def __init__(self, bShowMode):
+    def __init__(self, bSudokuHintType):
         cfg.CFilepathInfo.__init__(self)
         
-        self.bSudokuHintType = bShowMode
+        self.bSudokuHintType = bSudokuHintType
         
         dtToday = datetime.datetime.now()
         strProcessRunTime = "".join([dtToday.strftime('%Y%m%d'), '_', dtToday.strftime('%H')])
@@ -204,5 +204,5 @@ class SudokuPlayController(fn.CValidate, cfg.CFilepathInfo):
         print("sudoku", rgBoard[0])
         print("hint", rgBoard[1])
 
-CSudoku = SudokuPlayController(bShowMode = True)
+CSudoku = SudokuPlayController(bSudokuHintType = True)
 CSudoku.fnPlaySudoku()
