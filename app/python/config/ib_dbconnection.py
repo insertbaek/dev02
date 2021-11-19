@@ -96,7 +96,11 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
             nAffectedRows = 0
             
             with self.dbconn.cursor(self.isDict) as cursor:
-                if 'SELECT' in strQuery:
+                strQueryText = strQuery.replace(" ", "")
+                strQueryText = strQueryText[0:6]
+                strQueryText = strQueryText.upper()
+                
+                if (strQueryText == "SELECT"):
                     cursor.execute(strQuery, rgColValue)
                     rstList = cursor.fetchall()
                     
@@ -104,10 +108,12 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
                         rgRecords.append(row)
                     
                     return [True, rgRecords]
-                elif "INSERT" in strQuery:
+                elif (strQueryText == "INSERT" or strQueryText == "UPDATE" or strQueryText == "DELETE"):
                     if (rgColValue is not None):
                         if (str(type(rgColValue)) == "<class 'list'>"):
                             bColValueTypeisList = True
+                else:
+                    raise Exception('syntax error')
 
                 if (bColValueTypeisList == True):
                     rstList = cursor.executemany(strQuery, rgColValue)
@@ -122,21 +128,26 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
                     self.TransactionCommit()
                 
                 return [True, nAffectedRows]
+        except Exception as e:
+            self.CibLogSys.info([self.threadId, self.currentFrame.f_back.f_lineno, e])
+            self.TransactionRollback()
+                
+            return [False, e]
         except pymysql.MySQLError as e:
             self.CibLogSys.info([self.threadId, self.currentFrame.f_back.f_lineno, e])
             self.TransactionRollback()
                 
             return [False, e]
         finally:
-            del rgRecords, rstList, nAffectedRows, bColValueTypeisList
+            del rgRecords, rstList, nAffectedRows, bColValueTypeisList, strQueryText
             cursor.close()
 
     def TransactionCommit(self):
         try:
-            if (self.isTrans == True):
+            if (self.isTrans == True and self.isAutoCommit == False):
                 self.dbconn.commit()
         except pymysql.MySQLError as e:
-            if (self.isTrans == True):
+            if (self.isTrans == True and self.isAutoCommit == False):
                 self.TransactionRollback()
                 
             self.CibLogSys.info([self.threadId, self.currentFrame.f_back.f_lineno, e])
@@ -148,7 +159,7 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
         
     def TransactionRollback(self):
         try:
-            if (self.isTrans == True):
+            if (self.isTrans == True and self.isAutoCommit == False):
                 self.dbconn.rollback()
         except pymysql.MySQLError as e:
             self.CibLogSys.info([self.threadId, self.currentFrame.f_back.f_lineno, e])
@@ -205,7 +216,7 @@ if (rstList[0] == False):
     print("데이터 수정 오류")
 print("데이터 수정 결과 (Affected_Rows) : ", rstList[1])
 
-rstList = CdbDev02dbMaster.Execute("INSERT INTO last_insert_id_table (col) VALUES (%s)", [['star1'],['star2']])
+rstList = CdbDev02dbMaster.Execute("INSERT INTO last_insert_id_table (col) VALUES (%s)", [('star1'),('star2')])
 if (rstList[0] == False):
     print("데이터 등록 오류")
 print("데이터 등록 결과 (Affected_Rows) : ", rstList[1])
