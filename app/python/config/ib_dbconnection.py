@@ -1,4 +1,4 @@
-import pymysql, datetime
+import pymysql, datetime, inspect
 import ib_config as cfg
 import ib_function as fn
 
@@ -49,6 +49,7 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
         self.isDict = None
         self.isAutoCommit = False
         
+        self.currentFrame = inspect.currentframe()
         self.dtToday = datetime.datetime.now()
         strProcessRunTime = "".join([self.dtToday.strftime('%Y%m%d'), '_', self.dtToday.strftime('%H')])
         strSysLogFileName = "".join([strProcessRunTime, '_', self.alias, '_', self.strLogAlias, '_', self.dbname, '.log'])
@@ -83,18 +84,18 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
         try:
             if (self.threadId == 0):
                 self.threadId = self.dtToday.strftime('%Y%m%d%H%M%S.%f')
-                
-            self.CibLogSys.info([self.threadId, 'TRANSACTION QUERY', strQuery, rgColValue])
+
+            if (self.isAutoCommit == False):
+                self.isTrans = True
+
+            self.CibLogSys.info([self.threadId, 'TQ', strQuery, rgColValue])
+                    
+            self.insertlastid = 0
             bColValueTypeisList = False
             rgRecords = []
             nAffectedRows = 0
             
             with self.dbconn.cursor(self.isDict) as cursor:
-                if (self.isAutoCommit == False):
-                    self.isTrans = True
-                    
-                self.insertlastid = 0
-                
                 if 'SELECT' in strQuery:
                     cursor.execute(strQuery, rgColValue)
                     rstList = cursor.fetchall()
@@ -116,10 +117,13 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
                 nAffectedRows = cursor.rowcount
                 
                 self.insertlastid = cursor.execute('SELECT LAST_INSERT_ID()')
+
+                if (self.isAutoCommit == True):
+                    self.TransactionCommit()
                 
                 return [True, nAffectedRows]
         except pymysql.MySQLError as e:
-            self.CibLogSys.info([self.threadId, e])
+            self.CibLogSys.info([self.threadId, self.currentFrame.f_back.f_lineno, e])
             self.TransactionRollback()
                 
             return [False, e]
@@ -130,12 +134,14 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
     def TransactionCommit(self):
         try:
             if (self.isTrans == True):
-                self.CibLogSys.info([self.threadId, 'TRANSACTION COMMIT'])
                 self.dbconn.commit()
         except pymysql.MySQLError as e:
             if (self.isTrans == True):
                 self.TransactionRollback()
+                
+            self.CibLogSys.info([self.threadId, self.currentFrame.f_back.f_lineno, e])
         finally:
+            self.CibLogSys.info([self.threadId, 'TC'])
             self.isTrans = False
             self.insertlastid = 0
             self.threadId = 0
@@ -143,9 +149,11 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
     def TransactionRollback(self):
         try:
             if (self.isTrans == True):
-                self.CibLogSys.info([self.threadId, 'TRANSACTION ROLLBACK'])
                 self.dbconn.rollback()
+        except pymysql.MySQLError as e:
+            self.CibLogSys.info([self.threadId, self.currentFrame.f_back.f_lineno, e])
         finally:
+            self.CibLogSys.info([self.threadId, 'TR'])
             self.isTrans = False
             self.insertlastid = 0
             self.threadId = 0
@@ -161,7 +169,7 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
                 
                 return [True, 0]
         except pymysql.MySQLError as e:
-            self.CibLogSys.info([self.threadId, e])
+            self.CibLogSys.info([self.threadId, self.currentFrame.f_back.f_lineno, e])
             return [False, e]
 
 """
@@ -177,7 +185,7 @@ CREATE TABLE `last_insert_id_table` (
 
 """DbConnection Sample"""
 CdbDev02dbMaster = DbConnection('dbDev02')
-if (CdbDev02dbMaster.Connection(isAutoCommitType=False, isDictType=True) == False):
+if (CdbDev02dbMaster.Connection(isAutoCommitType=True, isDictType=True) == False):
     print("DB 연결에 실패하였습니다.")
     
 rstList = CdbDev02dbMaster.Execute('SELECT * FROM user_id WHERE user_id=%s OR user_id=%s', ['b0071','nestopia'])
@@ -204,6 +212,6 @@ print("데이터 등록 결과 (Affected_Rows) : ", rstList[1])
 
 print("데이터 등록 결과 (last_insert_id) : ", CdbDev02dbMaster.InsertLastId())
 
-CdbDev02dbMaster.TransactionCommit()
+#CdbDev02dbMaster.TransactionCommit()
 
 CdbDev02dbMaster.DisConnection()
