@@ -101,8 +101,6 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
                     
                     for row in rstList:
                         rgRecords.append(row)
-                        
-                    cursor.close()
                     
                     return [True, rgRecords]
                 elif "INSERT" in strQuery:
@@ -119,8 +117,6 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
                 
                 self.insertlastid = cursor.execute('SELECT LAST_INSERT_ID()')
                 
-                cursor.close()
-                
                 return [True, nAffectedRows]
         except pymysql.MySQLError as e:
             self.CibLogSys.info([self.threadId, e])
@@ -129,6 +125,7 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
             return [False, e]
         finally:
             del rgRecords, rstList, nAffectedRows, bColValueTypeisList
+            cursor.close()
 
     def TransactionCommit(self):
         try:
