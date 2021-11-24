@@ -101,6 +101,9 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
 
     def Execute(self, strQuery, rgColValue = None):
         try:
+            if (self.dbconn.open is not True):
+                raise Exception('DB Connection has been lost.')
+            
             if (self.threadId == 0):
                 self.threadId = self.dtToday.strftime('%Y%m%d%H%M%S.%f')
 
