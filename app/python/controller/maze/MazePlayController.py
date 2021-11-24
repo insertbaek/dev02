@@ -10,6 +10,7 @@ import sys, os, datetime, pymysql, json
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))))
 from config import ib_config as cfg
 from config import ib_function as fn
+from config import ib_dbconnection as dbc
 
 # init classes
 Cvalidate = fn.CValidate()
@@ -46,158 +47,123 @@ def ListToDic(rgList):
     rgDic = {i : rgList[i] for i in range(len(rgList))}
     return rgDic
 
-# SELECT
-def getGameInfo (nGameSeq):
-    print("OK!")
-    CDev02MasterDbconn = pymysql.connect(host=CDev02dbMaster.host, user=CDev02dbMaster.user, password=CDev02dbMaster.password, db=CDev02dbMaster.db, port=CDev02dbMaster.port, charset='utf8')
-    try:
-        # 필수 항목이 존재하는지 체크
-        if not nGameSeq:
-            raise Exception('필수 데이터가 비어있습니다.')
 
-        if (CDev02MasterDbconn.open != True):
-            raise Exception('서비스 상태를 확인해주세요.')
+class MazePlayController:
 
-        with CDev02MasterDbconn.cursor(pymysql.cursors.DictCursor) as CDev02MasterCursor:
-            qryGameInfo = "SELECT * FROM ib_dev02_01.maze_play_log_2021 WHERE seq= %s"
-            rstGameInfo = CDev02MasterCursor.execute(qryGameInfo, nGameSeq)
+    # SELECT
+    def fnGetGameInfo (nGameSeq):
+     
+        try:
+            # 필수 항목이 존재하는지 체크
+            if not nGameSeq:
+                raise Exception('필수 데이터가 비어있습니다.')
 
-            if rstGameInfo  == -1:
+            CDev02MasterDbconn = dbc.DbConnection('dbDev02')
+            if (CDev02MasterDbconn.Connection(isAutoCommitType=True, isDictType=True) == False):
+                raise Exception('DB 연결에 실패하였습니다.')
+
+            rstList = CDev02MasterDbconn.Execute('SELECT * FROM ib_dev02_01.maze_play_log_2021 WHERE seq= %s', [nGameSeq])
+            if (rstList[0] == False):
                 raise Exception('해당 항목에 대한 결과를 찾지 못하였습니다.')
-
-            rgResult = CDev02MasterCursor.fetchall()
+            
             #JSON 형식으로 변환하여 출력
-            strResult = json.dumps(rgResult, ensure_ascii = False)
+            strResult = json.dumps(rstList[1], ensure_ascii = False)
             print(strResult)
 
-        return strResult
-    except Exception as e:
-        CibLogSys.error(e)
-        return str(e)
-    finally :
-        CDev02MasterDbconn.close()
+            return strResult
+        except Exception as e:
+            CibLogSys.error(e)
+            return str(e)
+        finally :
+            CDev02MasterDbconn.DisConnection()
 
-# INSERT
-def setGame (self, rgGameInfo):
-    try:
-        # 필수 항목이 존재하는지 체크
-        if not rgGameInfo:
-            raise Exception('필수 데이터가 비어있습니다.')
+    # INSERT
+    def fnSetGame (self, rgGameInfo):
+        try:
+            # 필수 항목이 존재하는지 체크
+            if not rgGameInfo:
+                raise Exception('필수 데이터가 비어있습니다.')
 
-        CDev02MasterDbconn = pymysql.connect(host=CDev02dbMaster.host, user=CDev02dbMaster.user, password=CDev02dbMaster.password, db=CDev02dbMaster.db, port=CDev02dbMaster.port, charset='utf8')
-        with CDev02MasterDbconn.cursor(pymysql.cursors.DictCursor) as CDev02MasterCursor:
-            if (CDev02MasterDbconn.open == False):
-                raise Exception('서비스 상태를 확인해주세요.')
+            CDev02MasterDbconn = dbc.DbConnection('dbDev02')
+            if (CDev02MasterDbconn.Connection(isAutoCommitType=False, isDictType=True) == False):
+                raise Exception('DB 연결에 실패하였습니다.')
 
-            qryGameInfo = "INSERT INTO ib_dev02_01.test_tbl_1 SET data1 = %(data1)s, data2 = %(data2)s"
-            rstGameInfo = CDev02MasterCursor.execute(qryGameInfo, rgGameInfo)
+            rstGameInfo = CDev02MasterDbconn.Execute("INSERT INTO ib_dev02_01.test_tbl_1 SET data1 = %(data1)s, data2 = %(data2)s", rgGameInfo)
+            
+            if (rstGameInfo[0] == False):
+                raise Exception('해당 항목에 대한 결과를 찾지 못하였습니다.')
+            
+            CDev02MasterDbconn.TransactionCommit()
 
-            if rstGameInfo  == False:
-                CDev02MasterDbconn.rollback()
-                raise Exception('게임정보를 등록하지 못하였습니다..')
+            return CDev02MasterDbconn.InsertLastId()
+        except Exception as e:
+            CibLogSys.error(e)
+            return str(e)
+        finally :
+            CDev02MasterDbconn.DisConnection()
 
-            CDev02MasterDbconn.commit()
+    # UPDATE  
+    def fnSetResult (self, rgGameInfo):
+        try:
+            # 필수 항목이 존재하는지 체크
+            if not rgGameInfo:
+                raise Exception('필수 데이터가 비어있습니다.')
 
-        return CDev02MasterCursor.lastrowid
-    except Exception as e:
-        CibLogSys.error(e)
-        return str(e)
-    finally :
-        CDev02MasterDbconn.close()
-        
-# UPDATE  
-def setResult (self, rgGameInfo):
-    try:
-        # 필수 항목이 존재하는지 체크
-        if not rgGameInfo:
-            raise Exception('필수 데이터가 비어있습니다.')
+            CDev02MasterDbconn = dbc.DbConnection('dbDev02')
+            if (CDev02MasterDbconn.Connection(isAutoCommitType=False, isDictType=True) == False):
+                raise Exception('DB 연결에 실패하였습니다.')
 
-        CDev02MasterDbconn = pymysql.connect(host=CDev02dbMaster.host, user=CDev02dbMaster.user, password=CDev02dbMaster.password, db=CDev02dbMaster.db, port=CDev02dbMaster.port, charset='utf8')
-        with CDev02MasterDbconn.cursor(pymysql.cursors.DictCursor) as CDev02MasterCursor:
-            if (CDev02MasterDbconn.open != True):
-                raise Exception('서비스 상태를 확인해주세요.')
+            rstGameInfo = CDev02MasterDbconn.Execute("UPDATE ib_dev02_01.maze_play_log_2021 SET winner = %s, loser = %s, end_time = now()", rgGameInfo)
+            
+            if (rstGameInfo[0] == False):
+                raise Exception('해당 항목에 대한 결과를 찾지 못하였습니다.')
+            
+            CDev02MasterDbconn.TransactionCommit()
 
-            qryGameInfo = "UPDATE ib_dev02_01.maze_play_log_2021 SET winner = %s, loser = %s, end_time = now()"             
-            rstGameInfo = CDev02MasterCursor.execute(qryGameInfo, rgGameInfo)
+            return True
+        except Exception as e:
+            CibLogSys.error(e)
+            return str(e)
+        finally :
+            CDev02MasterDbconn.DisConnection()
 
-            if rstGameInfo  != 1:
-                CDev02MasterDbconn.rollback()
-                raise Exception('게임정보를 갱신하지 못하였습니다..')
+    # DELETE
+    def fnSetDelGame (self, nGameSeq):
+        try:
+            # 필수 항목이 존재하는지 체크
+            if not nGameSeq:
+                raise Exception('필수 데이터가 비어있습니다.')
 
-        CDev02MasterDbconn.commit()
+            CDev02MasterDbconn = dbc.DbConnection('dbDev02')
+            if (CDev02MasterDbconn.Connection(isAutoCommitType=False, isDictType=True) == False):
+                raise Exception('DB 연결에 실패하였습니다.')
 
-        return True
-    except Exception as e:
-        CibLogSys.error(e)
-        return str(e)
-    finally :
-        CDev02MasterDbconn.close()
+            rstGameInfo = CDev02MasterDbconn.Execute("DELETE FROM ib_dev02_01.maze_play_log_2021 WHERE seq = %s", nGameSeq)
 
-# DELETE
-def setDelGame (self, nGameSeq):
-    try:
-        # 필수 항목이 존재하는지 체크
-        if not nGameSeq:
-            raise Exception('필수 데이터가 비어있습니다.')
+            if (rstGameInfo[0] == False):
+                raise Exception('해당 항목에 대한 결과를 찾지 못하였습니다.')
+            
+            CDev02MasterDbconn.TransactionCommit()
 
-        CDev02MasterDbconn = pymysql.connect(host=CDev02dbMaster.host, user=CDev02dbMaster.user, password=CDev02dbMaster.password, db=CDev02dbMaster.db, port=CDev02dbMaster.port, charset='utf8')
-        with CDev02MasterDbconn.cursor(pymysql.cursors.DictCursor) as CDev02MasterCursor:
-            if (CDev02MasterDbconn.open != True):
-                raise Exception('서비스 상태를 확인해주세요.')
+            return True
+        except Exception as e:
+            CibLogSys.error(e)
+            return str(e)
+        finally :
+            CDev02MasterDbconn.DisConnection()
 
-            qryGameInfo = "DELETE FROM ib_dev02_01.maze_play_log_2021 WHERE seq = %s"             
-            rstGameInfo = CDev02MasterCursor.execute(qryGameInfo, nGameSeq)
+    # JSON to DIC
+    def getJsonData(self, strJson):
+        try:
+            if str(type(strJson)) != "<class 'str'>":
+                raise Exception ('올바른 형식의 데이터가 아닙니다.')
 
-            if rstGameInfo  != 1:
-                CDev02MasterDbconn.rollback()
-                raise Exception('게임정보를 삭제하지 못하였습니다..')
+            strConvJson = json.loads(strJson)
 
-            CDev02MasterDbconn.commit()
+            return strConvJson
+        except Exception as e:
+            CibLogSys.error(e)
+            return str(e)
 
-        return True
-    except Exception as e:
-        CibLogSys.error(e)
-        return str(e)
-    finally :
-        CDev02MasterDbconn.close()
-        
-# JSON to DIC
-def getJsonData(self, strJson):
-    try:
-        if str(type(strJson)) != "<class 'str'>":
-            raise Exception ('올바른 형식의 데이터가 아닙니다.')
-
-        strConvJson = json.loads(strJson)
-        
-        return strConvJson
-    except Exception as e:
-        CibLogSys.error(e)
-        return str(e)
-
-def PostTest (var1, var2, var3, var4):
-    print("input OK : "+var1+var2+var3+var4)
-
-
-# 해당 컨트롤러가 호출되었을 때 구분자를 통한 클래스 찾기
-if __name__ == '__main__':
-    rgJson = json.loads(sys.argv[1])['data']
-    
-    try:
-        # 들어오는 target값에 따라 어떤 클래스를 탈지 체크
-        if(rgJson['target'] =='PostTest'):
-            PostTest(rgJson['target'],rgJson['name'],rgJson['email'],rgJson['password'])
-
-        if(rgJson['target'] =='getGameInfo'):
-            getGameInfo(rgJson['nSeq'])
-
-        if(rgJson['target'] =='setGame'):
-            setGame(rgJson['data1'], rgJson['data2'])
-
-        if(rgJson['target'] =='setDelGame'):
-            setDelGame(rgJson['nSeq'])
-        
-        # 선언되지 않은 키를 인자값으로 넣으려고 하면 keyError발생
-    except KeyError:
-        print("[Err] Key <-> Value don't match!")
-    except Exception as ex:
-        print("[Err] ",ex)
+    def PostTest (var1, var2, var3, var4):
+        print("input OK : "+var1+var2+var3+var4)
