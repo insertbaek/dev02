@@ -131,7 +131,7 @@ class DbConnection(CDbConnectionInfo, cfg.CFilepathInfo):
                     
                     return [True, rgRecords]
                 elif (strQueryText == "INSERT" or strQueryText == "UPDATE" or strQueryText == "DELETE"):
-                    if (rgColValue is not None):
+                    if (strQueryText == "INSERT" and rgColValue is not None):
                         if (str(type(rgColValue)) == "<class 'list'>"):
                             bColValueTypeisList = True
                 else:

@@ -30,7 +30,7 @@ class PythonRoute:
             if (function == 'fnGetGameInfo'):
                 controller.fnGetGameInfo(self,value)
             elif(function == 'fnSetResult'):
-                controller.setResult(self,value)
+                controller.fnSetResult(self,value)
         except Exception as e:
             print(e)
 

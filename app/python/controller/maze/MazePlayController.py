@@ -51,7 +51,7 @@ class MazePlayController:
                 raise Exception('해당 항목에 대한 결과를 찾지 못하였습니다.')
             
             #JSON 형식으로 변환하여 출력
-            strResult = json.dumps(rstList[1], ensure_ascii = False)
+            strResult = json.dumps(rstList[1], ensure_ascii = False, default=str)
             print(strResult)
 
             return True
@@ -103,12 +103,12 @@ class MazePlayController:
             if (CDev02MasterDbconn.Connection(isAutoCommitType=False, isDictType=True) == False):
                 raise Exception('DB 연결에 실패하였습니다.')
 
-            rstGameInfo = CDev02MasterDbconn.Execute("UPDATE ib_dev02_01.maze_play_log_2021 SET winner = %s, loser = %s, end_time = now() WHERE seq = %s",rgGameInfo)
+            rstGameInfo = CDev02MasterDbconn.Execute("UPDATE ib_dev02_01.maze_play_log_2021 SET winner = %s, loser = %s, end_time = now() WHERE seq = %s", rgGameInfo)
             if (rstGameInfo[0] == False):
                 raise Exception('해당 항목에 대한 결과를 찾지 못하였습니다.')
-            
-            CDev02MasterDbconn.TransactionCommit()
 
+            CDev02MasterDbconn.TransactionCommit()
+            
             return True
         except Exception as e:
             CibLogSys.error(e)
