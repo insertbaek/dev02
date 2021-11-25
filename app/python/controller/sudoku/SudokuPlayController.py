@@ -203,6 +203,3 @@ class SudokuPlayController(fn.CValidate, cfg.CFilepathInfo):
         rgBoard = self.fnHintArrowInit()
         print("sudoku", rgBoard[0])
         print("hint", rgBoard[1])
-
-CSudoku = SudokuPlayController(bSudokuHintType = True)
-CSudoku.fnPlaySudoku()
