@@ -1,6 +1,5 @@
 function Maze(width, height) {
     var cells = [],
-        visited = 0,
         solution = [],
         solution2 = [];
 
