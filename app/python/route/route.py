@@ -1,4 +1,4 @@
-import sys, os
+import sys, os, traceback
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 class PythonRoute:
@@ -25,14 +25,24 @@ class PythonRoute:
     def fnMazeRouting(self,function,value):
         try:
             import controller.maze.MazePlayController as MazeController
-            controller = MazeController.MazePlayController
+            controller = MazeController.MazePlayControll
+            
+
 
             if (function == 'fnGetGameInfo'):
                 controller.fnGetGameInfo(self,value)
             elif(function == 'fnSetResult'):
                 controller.fnSetResult(self,value)
+            elif(function == 'fnSetMaze'):
+                print("ok~")
+                Maze_controller=MazeController.MazeMakeControll(5,5)
+                print(Maze_controller)
+                # Maze_controller.getData(self)
+            else:
+             print("Can't Find Function")
         except Exception as e:
             print(e)
+            print(traceback.format_exc())
 
         # Sudoku Routing ex) fnSetSudoku/1
     def fnSudokuRouting(self,function,value):
@@ -47,6 +57,8 @@ class PythonRoute:
 
                 CSudoku = controller.SudokuPlayController(bHint)
                 CSudoku.fnPlaySudoku()
+            else:
+             print("Can't Find Function")
         except Exception as e:
             print(e)
 
@@ -57,11 +69,14 @@ class PythonRoute:
 
             if (function == ''):
                 controller.getGameInfo(value)
+            else:
+             print("Can't Find Function")
 
         except Exception as e:
             print(e)
 
 if __name__ == "__main__":
+        print(sys.argv)
         # js route를 통해 넘어오는 데이터 (sys.argv)
         # Maze   ['/DEV02/app/python/route/route.py', 'Maze,fnGetGameInfo,1,1']
         # Sudoku ['/DEV02/app/python/route/route.py', 'Sudoku,fnSetSudoku,1']
@@ -75,7 +90,7 @@ if __name__ == "__main__":
                 objParameter +=rgValues[i]+","
             objParameter = objParameter[:-1]
             objParameter=objParameter.split(',')
-
+        print(rgValues)
         PythonRoute(rgValues[0],rgValues[1],objParameter)
         
 
