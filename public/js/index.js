@@ -18,7 +18,8 @@ var user = {
   "token": "A",
   "connecting": "",
   "last_connect": "",
-  "state": false,
+  "state": false, //게임 시작 버튼 클릭 여부
+  "turn": false //turn 체크
 };
 
 
@@ -28,7 +29,7 @@ socket.emit("login", user);
 //대기실 재접속 일 때 유저 정보 받아오기
 socket.on('resUser', function (data) {
   user = data;
-  console.log(user);
+  // console.log(user);
 })
 
 
@@ -52,8 +53,10 @@ socket.on('roomList', function (data) {
 
 
 //삭제된 방 클릭
-socket.on('roomListReload', function(){
-  alert("삭제된 방입니다. 다른 방을 골라주세요.");
+socket.on('roomListReload', function(type){
+  if(type == 'delete'){
+    alert("삭제된 방입니다. 다른 방을 골라주세요.");
+  }
   location.reload();
 });
 
@@ -100,14 +103,12 @@ $('#btn-reset').click(() => {
 
 //방 생성 버튼
 $('#btn-make-room').click(() => {
-  //이미 접속해있는 방이 있는 지 확인 : db연결 후 가능하지 않을까..
   if (user.connecting !== '') {
-    socket.emit('getRoomName', user.connecting)
+    socket.emit('getRoomName',user.connecting)
   } else {
     //방생성
     socket.emit("makeRoom");
   }
-
 });
 
 

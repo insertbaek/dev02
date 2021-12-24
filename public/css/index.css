@@ -1,6 +1,6 @@
 /* index */
-body{min-width:1300px;}
-.container-fluid{min-width:1300px;}
+/* body{min-width:1300px;} */
+/* .container-fluid{min-width:1300px;} */
 .row {margin: 15px 0;}
 .access-id {display:inline-block}
 .card-header {height:50px; line-height: 35px; text-align: center;}
@@ -11,7 +11,7 @@ body{min-width:1300px;}
 .myRank {text-align: center;}
 
 /* room */
-.game-body-wrap {}
+/* .game-body-wrap {} */
 .game-body-wrap > .time-body{height:150px;margin-bottom:50px;text-align:center;}
 .game-body-wrap > .time-body > h2{width:200px;margin:0 auto;border:1px solid black;}
 .game-body-wrap > .time-body > #game-time{display:inline-block;width:350px;height:100px;margin:-1px auto 0;line-height:100px;border:1px solid black;}
@@ -20,4 +20,4 @@ body{min-width:1300px;}
 .game-body-wrap > .game-body > .col-lg-3 > .game-character{width:300px;height:400px;margin:0 auto;text-align:center;}
 .game-body-wrap > .game-body > .col-lg-3 > .game-name{display:block;position:relative;width:300px;height:50px;margin:10px auto;text-align:center;line-height:50px;}
 .game-body-wrap > .game-body > .col-lg-3 > .game-name > .badge{position:absolute;left:-5px;top:-5px;}
-.game-body-wrap > .game-body > .col-lg-3 > .game-btn{display:block;width:300px;margin:10px auto;}
+.game-body-wrap > .game-body > .col-lg-3 > .game-btn{display:block;width:300px;margin:10px auto; display:none;}
