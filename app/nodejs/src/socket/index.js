@@ -11,7 +11,12 @@ const io = require('socket.io')({
 });
 const mazeNs = io.of('/maze'); //mazeNamespace
 
-mazeNs.on('connection', (socket) => {
+mazeNs
+    .use((socket, next)=>{
+        //console.log(socket);
+        next();
+    })
+    .on('connection', (socket) => {
     mazeNSSocket(io, mazeNs, socket)
 });
 
