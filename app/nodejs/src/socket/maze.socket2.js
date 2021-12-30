@@ -17,7 +17,6 @@ const mazeNSSocket = (io, mazeNs, socket) => {
     });
 
     socket.on('existJoin', function () {
-        // console.log("______existJoin : " + JSON.stringify(user));
         // console.log(user.connecting)
         if (user.connecting !== '' && user != null) {
             socket.join(user.connecting)
@@ -44,8 +43,8 @@ const mazeNSSocket = (io, mazeNs, socket) => {
                 'name': newRoomName,
                 'turn': 0, //전체 턴 수
                 'state': false, //게임 시작 여부
-                'startTime':"",
-                'totalTime':0,
+                'startTime': "",
+                'totalTime': 0,
                 'userList': []
             };
 
@@ -67,8 +66,7 @@ const mazeNSSocket = (io, mazeNs, socket) => {
             let joinRoom = getCheckRoomUser(room.id, user.uuid)
             let flag = true;
 
-            console.log("룸 ㅣ "+ JSON.stringify(room));
-            
+            console.log("룸 ㅣ " + JSON.stringify(room));
 
             user.connecting = room.id;
             setUserData(user.uuid, "connecting", user.connecting)
@@ -144,7 +142,6 @@ const mazeNSSocket = (io, mazeNs, socket) => {
     //게임 포기, 방 나가기
     socket.on('leaveRoom', function (data, type) {
         var room = getRoomElement(data);
-        // console.log(JSON.stringify(room));
 
         socket.leave(data);
         setRoomUserUpdate(room, user)
@@ -156,22 +153,19 @@ const mazeNSSocket = (io, mazeNs, socket) => {
 
         if (type == "giveup") {
             //패배처리 소스 추가 필요
-            //시간 처리도 0으로 만들 소스 필요
             socket.to(data).emit('giveUpUserSuccess');
         } else {
             socket.to(data).emit('leaveUserSuccess');
         }
 
         socket.emit('roomListReload', "exit")
-
-        // console.log(JSON.stringify(room))
         connected = false;
     });
 
 
-    socket.on('disconnecting', (reason) => {
+    // socket.on('disconnecting', (reason) => {
 
-    });
+    // });
 
 
     //연결 종료
@@ -195,7 +189,7 @@ const mazeNSSocket = (io, mazeNs, socket) => {
                     deleteRoom(room)
                 }
             }
-        }, 3000);
+        }, 1000);
 
         // if (connected) {
         //     clearTimeout(clear);
@@ -203,18 +197,9 @@ const mazeNSSocket = (io, mazeNs, socket) => {
     });
 
 
-    // socket.on('countUser', function(roomId){
-    //     var room = getRoomElement(roomId);
-    //     mazeNs.in(roomId).fetchSockets().then((sockets) => {
-    //         mazeNs.to(roomId).emit('sendCountUser', sockets.length, room)
-    //         });
-    //         console.log("^^^^^^^^^^^^countUser^^^^^^^^^^^^^^")
-    // })
-
 
     socket.on('startState', function (state, roomId) {
         let room = getRoomElement(roomId);
-        // console.log("startState : "+ room);
 
         setRoomUserState(roomId, user.uuid, state)
         setUserData(user.uuid, "state", state)
@@ -225,83 +210,69 @@ const mazeNSSocket = (io, mazeNs, socket) => {
             mazeNs.to(roomId).emit('gameStart', room.turn, room.userList, true)
         }
 
-        // console.log("room state상태 : " + JSON.stringify(room))
+        console.log("room state상태 : " + JSON.stringify(room))
     })
 
 
-    socket.on('timeStart', function (roomId, turn, run) {
+    //타이머 시작
+    socket.on('timeStart', function (roomId, turn, end) {
         let room = getRoomElement(roomId)
         let date = new Date();
         let gameTime = "";
         let startTime = "";
-        let clearTimer;
-        // let totalPlayTime = 0;
-        let flag = false;
 
-        if(room.startTime == ""){
+        if(end == true){ //게임 종료 시 timer 멈추기
+            clearInterval(room.timer)
+            return;
+        }
+
+        if (room.startTime == "") {
             startTime = date;
             setRoomUpdate(roomId, "startTime", startTime)
-        }else{
+        } else {
             startTime = room.startTime;
         }
-        console.log("run :"+ run)
+
         setRoomUpdate(roomId, "turn", turn)
-        if(run === true){
-            setRoomUpdate(roomId, "state", true)
-            flag = true;
-            
-            console.log("====================timeStart",JSON.stringify(getRoomElement(roomId)));
-            clearTimer = setInterval(() => {
-                Timer()
-            }, 1000)
-        }else{
-            flag = false; 
-            clearInterval(clearTimer)
-            console.log("clearTimer :" + clearTimer);
-            flag = true;
-            clearTimer = setInterval(() => {
-                Timer()
-            }, 1000)
-        }
+        setRoomUpdate(roomId, "state", true)
 
-        console.log(flag)
-        
-
-        Timer = () =>{
-            if(flag == true){
-                let time = Math.floor(((date - new Date()) / 1000) % 60);
-                let roundPlayTime = -(Math.floor(((startTime - new Date()) / 1000) % 60)); //턴 체인지 시 주는 여유시간 때문에 +1초씩 누적해서 밀려남.
-                let sumPlayTime = "";
-                gameTime = 60 + time;
-                if (gameTime == 0) {
-                    clearInterval(clearTimer)
-                    mazeNs.to(roomId).emit('turnout', room.userList);
-                    sumPlayTime = room.totalTime + roundPlayTime;
-                    console.log(sumPlayTime);
-                    setRoomUpdate(roomId, "totalTime", sumPlayTime)
-                }
-
-                console.log(roundPlayTime);
-                mazeNs.to(roomId).emit('timer', gameTime)
-
+        clearInterval(room.timer)
+        room.timer = setInterval(() => {
+            // let time = Math.floor(((date - new Date()) / 1000) % 60);
+            let time = Math.round(((date - new Date()) / 1000) % 60);
+            gameTime = 60 + time;
+            console.log(gameTime);
+            if (gameTime == 60) {
+                clearInterval(room.timer)
+                mazeNs.to(roomId).emit('turnout', room.userList);
+            }else{
+                mazeNs.to(roomId).emit('timer', gameTime);
             }
-        }
+        }, 1000)
     })
 
 
-    //run == true: 바로 실행, false : 초기화 후 실행
-    socket.on('turnChange', function (run) {
-        //room.userList에서 
+    //turn 변경
+    socket.on('turnChange', function () {
         console.log("==================turnChange===================")
         let room = getRoomElement(user.connecting)
+        let time = new Date();
+        let startTime = room.startTime;
+        let playTime = Math.round((time - startTime) / 1000);
 
-        for(var i=0; i<room.userList.length; i++){
-            var turnFlag = room.userList[i].turn;
-            room.userList[i].turn = !turnFlag
+        console.log("playtime :: " + playTime)
+
+        //총 playtime 계산 : 현재 플레이 시간 : 3분
+        if (playTime >= 175) {
+            mazeNs.to(room.id).emit('timeOver');
+        } else {
+            for (var i = 0; i < room.userList.length; i++) {
+                var turnFlag = room.userList[i].turn;
+                room.userList[i].turn = !turnFlag
+            }
+            mazeNs.to(room.id).emit('gameStart', room.turn, room.userList)
         }
-        // console.log(JSON.stringify(room.userList));
-        mazeNs.to(room.id).emit('gameStart', room.turn, room.userList, run)
-    })
+    });
 
 
     //user = null로 인한 에러
@@ -319,7 +290,6 @@ const mazeNSSocket = (io, mazeNs, socket) => {
         for (var i = 0; i < roomList.length; i++) {
             if (roomList[i].id === roomId) {
                 room = roomList[i];
-
                 break;
             }
         }
@@ -342,7 +312,6 @@ const mazeNSSocket = (io, mazeNs, socket) => {
     setRoomUserState = (roomId, uuid, state) => {
         var room = getRoomElement(roomId);
         let getUser = null;
-        console.log("setRoomUserState : "+ roomId, JSON.stringify(room))
         for (var i = 0; i < room.userList.length; i++) {
             if (room.userList[i].uuid === uuid) {
                 room.userList[i].state = state;
@@ -369,7 +338,6 @@ const mazeNSSocket = (io, mazeNs, socket) => {
         var flag = false;
         if (room != null) {
             for (var i = 0; i < room.userList.length; i++) {
-                console.log("user " + (i + 1) + ": " + room.userList[i].uuid + "/" + uuid)
                 if (room.userList[i].uuid === uuid) {
                     flag = true;
                     break;
@@ -381,11 +349,9 @@ const mazeNSSocket = (io, mazeNs, socket) => {
 
     //유저리스트에서 해당 유저 입장 방 정보 변경
     setUserData = (userId, type, data) => {
-        console.log("String TYPE : " + type)
         for (var i = 0; i < userList.length; i++) {
             if (userList[i].uuid === userId) {
                 userList[i][type] = data;
-                console.log("type : " + JSON.stringify(userList[i]))
                 break;
             }
         }

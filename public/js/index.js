@@ -55,7 +55,7 @@ socket.on('roomList', function (data) {
 //삭제된 방 클릭
 socket.on('roomListReload', function(type){
   if(type == 'delete'){
-    alert("삭제된 방입니다. 다른 방을 골라주세요.");
+    alert("삭제된 방입니다. 다른 방을 선택해주세요.");
   }
   location.reload();
 });
@@ -63,7 +63,7 @@ socket.on('roomListReload', function(type){
 
 //이미 접속 중인 방 존재
 socket.on('sendRoomName', function(sendRoomName){
-  alert("현재 [" + sendRoomName + "] 방에 접속중입니다.\n 방 나가기 후 다른 방 접속이 가능합니다.");
+  alert("현재 [" + sendRoomName + "] 방에 접속중입니다.\n 방 나가기 및 게임포기 후 다른 방 접속이 가능합니다.");
 });
 
 
