@@ -27,6 +27,27 @@ window.addEventListener("load", function () {
             socket.emit('existJoin')
         }, 10);
 
+        var data = {
+            url: '/v1/user', 
+            method: 'patch',
+            data: '?uuid=' + uuid
+          }
+          ApiHelper(data).then(res => {
+            // console.log(res)
+            //유저 정보
+            user = {
+              "uuid": res.uuid,
+              "nick": res.nick,
+              "rank": res.rank,
+              "token": res.token,
+              "connecting": res.connecting,
+              "last_connect": res.last_connect,
+              "state": res.state, //게임 시작 버튼 클릭 여부
+              "turn": res.turn //turn 체크
+            };
+          }).catch(e => {
+          })
+
         if (user.state == true) { //새로고침에 true로 되어있으면 버튼 true로 보이게
             $('#btn-player1-start').removeClass('disabled');
             $('#btn-player1-start').removeClass('btn-warning');
@@ -77,7 +98,6 @@ window.addEventListener("load", function () {
         alert("입장이 제대로 진행되지 않았습니다. 다시 입장해주세요.");
         location.href = "/";
     })
-
 
 
     //게임 시작

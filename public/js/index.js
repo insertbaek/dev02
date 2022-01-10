@@ -1,5 +1,6 @@
 var socket = io('/maze');
 var uuid = "";
+var user = {};
 
 //임시 아이디 생성 및 불러오기
 if (localStorage.getItem('uuid')) {
@@ -10,17 +11,44 @@ if (localStorage.getItem('uuid')) {
   localStorage.setItem('uuid', uuid);
 }
 
-//유저 정보
-var user = {
-  "uuid": uuid,
-  "nick": "basic",
-  "rank": 0,
-  "token": "A",
-  "connecting": "",
-  "last_connect": "",
-  "state": false, //게임 시작 버튼 클릭 여부
-  "turn": false //turn 체크
-};
+
+window.onload = function () {
+  var data = {
+    url: '/v1/user',
+    method: 'get',
+    data: '?uuid=' + uuid
+  }
+  ApiHelper(data).then(res => {
+    // console.log(res)
+    //유저 정보
+    user = {
+      "uuid": res.uuid,
+      "nick": res.nick,
+      "rank": res.rank,
+      "token": res.token,
+      "connecting": res.connecting,
+      "last_connect": res.last_connect,
+      "state": res.state, //게임 시작 버튼 클릭 여부
+      "turn": res.turn //turn 체크
+    };
+  }).catch(e => {
+    user = {
+      "uuid": uuid,
+      "nick": "basic",
+      "rank": 0,
+      "token": "A",
+      "connecting": "",
+      "last_connect": "",
+      "state": false, //게임 시작 버튼 클릭 여부
+      "turn": false //turn 체크
+  }
+  })
+  console.log(user)
+}
+
+
+
+
 
 
 //유저 접속 정보 전달
@@ -53,8 +81,8 @@ socket.on('roomList', function (data) {
 
 
 //삭제된 방 클릭
-socket.on('roomListReload', function(type){
-  if(type == 'delete'){
+socket.on('roomListReload', function (type) {
+  if (type == 'delete') {
     alert("삭제된 방입니다. 다른 방을 선택해주세요.");
   }
   location.reload();
@@ -62,7 +90,7 @@ socket.on('roomListReload', function(type){
 
 
 //이미 접속 중인 방 존재
-socket.on('sendRoomName', function(sendRoomName){
+socket.on('sendRoomName', function (sendRoomName) {
   alert("현재 [" + sendRoomName + "] 방에 접속중입니다.\n 방 나가기 및 게임포기 후 다른 방 접속이 가능합니다.");
 });
 
@@ -104,7 +132,7 @@ $('#btn-reset').click(() => {
 //방 생성 버튼
 $('#btn-make-room').click(() => {
   if (user.connecting !== '') {
-    socket.emit('getRoomName',user.connecting)
+    socket.emit('getRoomName', user.connecting)
   } else {
     //방생성
     socket.emit("makeRoom");
@@ -137,7 +165,7 @@ function roomListAppend(data) {
         };
         //이미 접속해있는 방이 있는 지 확인
         if (user.connecting !== '' && user.connecting !== roomId) {
-          socket.emit('getRoomName',user.connecting)
+          socket.emit('getRoomName', user.connecting)
         } else {
           //인원 체크
           socket.emit("checkRoom", data);
